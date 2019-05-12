@@ -1,2 +1,2 @@
 # SimpleDB
-Simple Database Implementation
+Simple Database.Database Implementation
