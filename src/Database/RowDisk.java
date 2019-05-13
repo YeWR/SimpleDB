@@ -89,28 +89,27 @@ public class RowDisk {
 
     /**
      * read data from disk
-     * TODO: read
      * @param position: the first index
      * @return the bytes
      */
     public byte[] read(int position){
-        byte[] data = new byte[1000];
+        byte[] data = new byte[0];
         while (true) {
             try {
                 byte[] blockBytes = fm.read(position);
                 BlockDisk block = new BlockDisk(BLOCK_SIZE, INFO_SIZE, blockBytes);
+
                 byte[] content = block.getContent();
-//                data
+                data = Bytes.combineBytes(data, content);
 
-
-//                System.arraycopy(block, 0, , 0, INFO_SIZE);
-                break;
-
+                if(!block.hasNext()){
+                    break;
+                }
+                position = block.getNextBlock();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-
         return data;
     }
 

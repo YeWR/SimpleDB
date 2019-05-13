@@ -1,12 +1,14 @@
 package Test;
 
+import Utils.Bytes;
+
 public class Test {
     static public void main(String[] str){
-        A A1 = new A();
-        A B1 = new B();
-        A.a = 1;
-        System.out.println(A.a);
-        System.out.println(B.a);
+        byte[] b1 = Bytes.intToBytes(1);
+        byte[] b2 = new byte[0];
+        byte[] b3 = Bytes.combineBytes(b1, b2);
+        System.out.println(Bytes.bytesToInt(b3));
+
 
     }
 }
