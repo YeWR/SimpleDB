@@ -136,4 +136,18 @@ public class FileManagerBase {
         this.file.close();
     }
 
+    /**
+     * find the next available position of block for storing.
+     * TODO: now only append to the tail of file
+     * @param num: the number of positions you want
+     * @return
+     */
+    public int[] getNextBlockPositions(int num){
+        int[] positions = new int[num];
+        for (int i = 0; i < num; ++i){
+            positions[i] = this.size + i;
+        }
+        return positions;
+    }
+
 }

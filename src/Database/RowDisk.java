@@ -18,7 +18,7 @@ public class RowDisk {
     private static byte[] headerBytes;
 
     private FileManagerBase fm;
-    private BlockDisk[] blocks;
+//    private BlockDisk[] blocks;
     /**
      * @param hasNext: has next page of the row
      *              0 -> no
@@ -61,30 +61,36 @@ public class RowDisk {
 
     /**
      * write data to disk
-     * TODO: write
      * @param data: total bytes of data
      * @return the position of the first block to write
      */
     public int write(byte[] data){
-//        int slice = getAvailableSize();
-//        int dataBytes = data.length;
-//
-//        byte[] head = Bytes.combineBytes(this.hasNext, this.nextBlock);
-//        if(dataBytes > slice){
-//            int num = dataBytes / slice;
-//            for()
-//
-//        }
-//        else {
-//            byte[] dataThisBlock = Bytes.combineBytes(head, data);
-//            try {
-//                return fm.write(dataThisBlock);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-        return 0;
+        int len;
+        byte[] info;
+        byte[] content = new byte[getAvailableSize()];
+        int num = (int) Math.ceil( (double) data.length / getAvailableSize());
+        assert num > 0;
+        int[] positions = fm.getNextBlockPositions(num);
 
+        for(int i = 0; i < num; ++i){
+            if(i == num - 1){
+                len = data.length - i * getAvailableSize();
+                info = writeInfo(false, false, 0, len);
+            }
+            else {
+                len = getAvailableSize();
+                info = writeInfo(false, true, positions[i+1], len);
+            }
+            System.arraycopy(data, i * getAvailableSize(), content, 0, len);
+
+            byte[] block = Bytes.combineBytes(info, content);
+            try {
+                fm.write(block, positions[i]);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return positions[0];
     }
 
     /**
@@ -111,6 +117,15 @@ public class RowDisk {
             }
         }
         return data;
+    }
+
+    private byte[] writeInfo(boolean empty, boolean hasNext, int nextPosition, int contentBytes){
+        byte[] info = new byte[INFO_SIZE];
+        info[0] = Bytes.booleanToByte(empty);
+        info[1] = Bytes.booleanToByte(hasNext);
+        Bytes.intToBytes(nextPosition, info, 2);
+        Bytes.intToBytes(contentBytes, info, 6);
+        return info;
     }
 
     /**
