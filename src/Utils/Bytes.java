@@ -7,6 +7,20 @@ import java.util.Comparator;
  */
 public class Bytes {
 
+    public static byte[] combineBytes(byte b1, byte[] b2){
+        byte[] b3 = new byte[1 + b2.length];
+        b3[0] = b1;
+        System.arraycopy(b2, 0, b3, 1, b2.length);
+        return b3;
+    }
+
+    public static byte[] combineBytes(byte[] b1, byte[] b2){
+        byte[] b3 = new byte[b1.length + b2.length];
+        System.arraycopy(b1, 0, b3, 0, b1.length);
+        System.arraycopy(b2, 0, b3, b1.length, b2.length);
+        return b3;
+    }
+
     /** converts a positive integer to a byte, treating the byte as an
      unsigned 8 bits.
      If the integer is greater than 255, then the higher order

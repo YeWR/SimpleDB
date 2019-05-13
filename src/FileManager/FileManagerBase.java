@@ -37,8 +37,6 @@ public class FileManagerBase {
                     this.file.setLength(size * blockSize);
                 }
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
