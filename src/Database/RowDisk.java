@@ -3,6 +3,7 @@ package Database;
 import FileManager.FileManagerBase;
 import Utils.Bytes;
 import Utils.Log;
+import jdk.nashorn.internal.ir.Block;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -12,10 +13,12 @@ public class RowDisk {
      * row in a table stored on the disk
      */
 
-    private static int BLOCK_SIZE, DATA_SIZE, POINTER_SIZE;
+    private static int BLOCK_SIZE, INFO_SIZE, DATA_SIZE, POINTER_SIZE;
+    private static int HEADER_SIZE;
     private static byte[] headerBytes;
 
     private FileManagerBase fm;
+    private BlockDisk[] blocks;
     /**
      * @param hasNext: has next page of the row
      *              0 -> no
@@ -26,13 +29,9 @@ public class RowDisk {
     private byte[] nextBlock;
 
 
-    public RowDisk(String fileName, int blockSize){
+    public RowDisk(String fileName, int blockSize, int infoSize, byte[] data){
         fm = new FileManagerBase(fileName, blockSize);
         if(fm.getSize() == 0){
-            // the file opened was empty
-            // Write new header data first
-
-            BLOCK_SIZE = blockSize;
             DATA_SIZE = 4;
             POINTER_SIZE = 4;
             if(BLOCK_SIZE < DATA_SIZE + POINTER_SIZE){
@@ -62,6 +61,7 @@ public class RowDisk {
 
     /**
      * write data to disk
+     * TODO: write
      * @param data: total bytes of data
      * @return the position of the first block to write
      */
@@ -88,6 +88,33 @@ public class RowDisk {
     }
 
     /**
+     * read data from disk
+     * TODO: read
+     * @param position: the first index
+     * @return the bytes
+     */
+    public byte[] read(int position){
+        byte[] data = new byte[1000];
+        while (true) {
+            try {
+                byte[] blockBytes = fm.read(position);
+                BlockDisk block = new BlockDisk(BLOCK_SIZE, INFO_SIZE, blockBytes);
+                byte[] content = block.getContent();
+//                data
+
+
+//                System.arraycopy(block, 0, , 0, INFO_SIZE);
+                break;
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return data;
+    }
+
+    /**
      * Writes the data byte array to the header of the index file.
      * @param headerBytes - the header byte to get the index information from
      */
@@ -95,6 +122,7 @@ public class RowDisk {
         Bytes.intToBytes(BLOCK_SIZE, headerBytes, 0);
         headerBytes[4] = Bytes.intToByte(DATA_SIZE);
         headerBytes[5] = Bytes.intToByte(POINTER_SIZE);
+        HEADER_SIZE = 6;
         try {
             fm.write(headerBytes, 0);
         } catch (IOException e) {
@@ -110,6 +138,7 @@ public class RowDisk {
         BLOCK_SIZE = Bytes.bytesToInt(headerBytes, 0);
         DATA_SIZE = Bytes.byteToInt(headerBytes[4]);
         POINTER_SIZE = Bytes.byteToInt(headerBytes[5]);
+        HEADER_SIZE = 6;
     }
 
     public static int getAvailableSize(){
