@@ -1,11 +1,96 @@
 package Utils;
 
+import java.nio.ByteBuffer;
 import java.util.Comparator;
 
 /**
  * Utilities for converting to and from arrays of bytes
  */
 public class Bytes {
+
+
+    public static byte[] doubleToBytes(double d) {
+        long value = Double.doubleToRawLongBits(d);
+        byte[] byteRet = new byte[8];
+        for (int i = 0; i < 8; i++) {
+            byteRet[i] = (byte) ((value >> 8 * i) & 0xff);
+        }
+        return byteRet;
+    }
+
+    public static double bytesToDouble(byte[] arr) {
+        long value = 0;
+        for (int i = 0; i < 8; i++) {
+            value |= ((long) (arr[i] & 0xff)) << (8 * i);
+        }
+        return Double.longBitsToDouble(value);
+    }
+
+    /**
+     * 浮点转换为字节
+     *
+     * @param f
+     * @return
+     */
+    public static byte[] FloatToBytes(float f) {
+
+        // 把float转换为byte[]
+        int fbit = Float.floatToIntBits(f);
+
+        byte[] b = new byte[4];
+        for (int i = 0; i < 4; i++) {
+            b[i] = (byte) (fbit >> (24 - i * 8));
+        }
+
+        // 翻转数组
+        int len = b.length;
+        // 建立一个与源数组元素类型相同的数组
+        byte[] dest = new byte[len];
+        // 为了防止修改源数组，将源数组拷贝一份副本
+        System.arraycopy(b, 0, dest, 0, len);
+        byte temp;
+        // 将顺位第i个与倒数第i个交换
+        for (int i = 0; i < len / 2; ++i) {
+            temp = dest[i];
+            dest[i] = dest[len - i - 1];
+            dest[len - i - 1] = temp;
+        }
+
+        return dest;
+
+    }
+
+    /**
+     * 字节转换为浮点
+     *
+     * @param b 字节（至少4个字节）
+     * @param index 开始位置
+     * @return
+     */
+    public static float bytesToFloat(byte[] b, int index) {
+        int l;
+        l = b[index + 0];
+        l &= 0xff;
+        l |= ((long) b[index + 1] << 8);
+        l &= 0xffff;
+        l |= ((long) b[index + 2] << 16);
+        l &= 0xffffff;
+        l |= ((long) b[index + 3] << 24);
+        return Float.intBitsToFloat(l);
+    }
+
+    public static byte[] longToBytes(long x) {
+        ByteBuffer buffer = ByteBuffer.allocate(8);
+        buffer.putLong(0, x);
+        return buffer.array();
+    }
+
+    public static long bytesToLong(byte[] bytes) {
+        ByteBuffer buffer = ByteBuffer.allocate(8);
+        buffer.put(bytes, 0, bytes.length);
+        buffer.flip();//need flip
+        return buffer.getLong();
+    }
 
     public static byte[] combineBytes(byte b1, byte[] b2){
         byte[] b3 = new byte[1 + b2.length];

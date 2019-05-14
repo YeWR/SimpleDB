@@ -18,18 +18,8 @@ public class RowDisk {
     private static byte[] headerBytes;
 
     private FileManagerBase fm;
-//    private BlockDisk[] blocks;
-    /**
-     * @param hasNext: has next page of the row
-     *              0 -> no
-     *              1 -> yes
-     * @param nextBlock: the pointer of the next block
-     */
-    private byte hasNext;
-    private byte[] nextBlock;
 
-
-    public RowDisk(String fileName, int blockSize, int infoSize, byte[] data){
+    public RowDisk(String fileName, int blockSize, int infoSize){
         fm = new FileManagerBase(fileName, blockSize);
         if(fm.getSize() == 0){
             DATA_SIZE = 4;
@@ -54,9 +44,6 @@ public class RowDisk {
                 e.printStackTrace();
             }
         }
-
-        this.hasNext = Bytes.intToByte(0);
-        Bytes.intToBytes(0, this.nextBlock, 0);
     }
 
     /**
