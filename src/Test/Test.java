@@ -6,26 +6,26 @@ import Utils.Bytes;
 
 public class Test {
     static public void main(String[] str){
-//        Database db = new Database("testDB", 2048);
-//        String[] names = new String[4];
-//        String[] types = new String[4];
-//
-//        for(int i = 0; i < names.length; ++i){
-//            names[i] = "attri" + String.valueOf(i);
-//            types[i] = "Int";
-//        }
-//
-//        db.createTable("table1", names, types);
-//        Table table = db.getTable("table1");
-//        System.out.println(table.toString());
+        Database db = new Database("testDB", 2048);
+        String[] names = new String[4];
+        String[] types = new String[4];
 
-        BplusTree tree = new BplusTree("./data/testDB/table1.db", 1024);
-        int rootID = tree.getRoot();
-        for (int i = 1; i < 160; ++i) {
-            tree.insert(i, i);
+        for(int i = 0; i < names.length; ++i){
+            names[i] = "attri" + String.valueOf(i);
+            types[i] = "Int";
         }
-        System.out.println(BplusTree.getOrder());
-        LeafNode ans = tree.get(6, rootID);
-        System.out.println(ans.get(1));
+
+//        db.createTable("table1", names, types, "attri0");
+        Table table = db.getTable("table1");
+        System.out.println(table.toString());
+
+//        BplusTree tree = new BplusTree("./data/testDB/table1.db", 1024);
+//        int rootID = tree.getRoot();
+//        for (int i = 1; i < 160; ++i) {
+//            tree.insert(i, i);
+//        }
+//        System.out.println(BplusTree.getOrder());
+//        LeafNode ans = tree.get(6, rootID);
+//        System.out.println(ans.get(1));
     }
 }

@@ -10,20 +10,24 @@ public class Schema {
      * for a table
      */
 
-    private static int COLUMNSIZE = 4;
+    private static int COLUMNSIZE = 4, INDEXSIZE = 4;
 
     private ArrayList<String> names;
     private ArrayList<String> types;
+    private int index;
 
     /**
      * for create
      * @param names
      * @param types
      */
-    public Schema(String[] names, String[] types){
+    public Schema(String[] names, String[] types, String indexName){
         assert names.length == types.length;
         this.names = new ArrayList<>(Arrays.asList(names));
         this.types = new ArrayList<>(Arrays.asList(types));
+
+        this.index = this.names.indexOf(indexName);
+        assert this.index >= 0;
     }
 
     /**
@@ -38,25 +42,29 @@ public class Schema {
         names = new ArrayList<>();
         types = new ArrayList<>();
 
-        int index = COLUMNSIZE;
+        int id = COLUMNSIZE;
         for(int i = 0; i < len; ++i){
             byte[] bs = new byte[Database.STRINGSIZE];
-            System.arraycopy(bytes, index, bs, 0, Database.STRINGSIZE);
+            System.arraycopy(bytes, id, bs, 0, Database.STRINGSIZE);
             String name = Bytes.bytesToString(bs);
             names.add(name);
 
-            index += Database.STRINGSIZE;
+            id += Database.STRINGSIZE;
         }
 
         for(int i = 0; i < len; ++i){
             byte[] bs = new byte[4];
-            System.arraycopy(bytes, index, bs, 0, 4);
+            System.arraycopy(bytes, id, bs, 0, 4);
             int b = Bytes.bytesToInt(bs);
             String type = Database.typeToString(b);
             types.add(type);
 
-            index += 4;
+            id += 4;
         }
+
+        byte[] temp1 = new byte[4];
+        System.arraycopy(bytes, id, temp1, 0, temp1.length);
+        this.index = Bytes.bytesToInt(temp1);
     }
 
     public byte[] toBytes(){
@@ -65,29 +73,33 @@ public class Schema {
          * 0-3: how many columns
          * 4-*: total names of columns (stored in string_
          * *-*: total types of columns
+         * *-*: index
          */
-        int total = COLUMNSIZE + len * (Database.STRINGSIZE + 4);
+        int total = COLUMNSIZE + len * (Database.STRINGSIZE + 4) + INDEXSIZE;
         byte[] bytes = new byte[total];
 
-        int index = 0;
+        int id = 0;
         byte[] temp = Bytes.intToBytes(len);
-        System.arraycopy(temp, 0, bytes, index, COLUMNSIZE);
+        System.arraycopy(temp, 0, bytes, id, COLUMNSIZE);
 
-        index += COLUMNSIZE;
+        id += COLUMNSIZE;
         for (String name : names){
             byte[] nameBytes = Bytes.stringToBytes(name);
-            System.arraycopy(nameBytes, 0, bytes, index, nameBytes.length);
+            System.arraycopy(nameBytes, 0, bytes, id, nameBytes.length);
 
-            index += nameBytes.length;
+            id += nameBytes.length;
         }
 
         for (String type : types){
             int T = Database.typeToInt(type);
             byte[] bs = Bytes.intToBytes(T);
 
-            System.arraycopy(bs, 0, bytes, index, bs.length);
-            index += bs.length;
+            System.arraycopy(bs, 0, bytes, id, bs.length);
+            id += bs.length;
         }
+
+        byte[] temp1 = Bytes.intToBytes(this.index);
+        System.arraycopy(temp1, 0, bytes, id, temp1.length);
 
         return bytes;
     }
@@ -106,6 +118,9 @@ public class Schema {
         for (int i = 0; i < this.columns(); ++i){
             s += " | ";
             s += this.names.get(i);
+            if(i == this.index){
+                s += "(*)";
+            }
         }
         s += " | \n";
         s += "--------------------------------------------------------------------\n";
