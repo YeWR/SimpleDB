@@ -16,7 +16,27 @@ public class BlockDisk extends Prototype {
      */
 
     private byte[] info;
+    private byte[] content;
 
+    /**
+     * read
+     */
+    public BlockDisk(FileManagerBase fm, int position){
+        try {
+            byte[] blockBytes = fm.read(position);
+            this.info = new byte[INFO_SIZE];
+            System.arraycopy(blockBytes, 0, this.info, 0, INFO_SIZE);
+
+            this.content = new byte[getBytesOfContent()];
+            System.arraycopy(blockBytes, INFO_SIZE, this.content, 0, this.content.length);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * create
+     */
     public BlockDisk(int blockSize, int infoSize){
         BLOCK_SIZE = blockSize;
         INFO_SIZE = infoSize;
@@ -69,22 +89,14 @@ public class BlockDisk extends Prototype {
     public static byte[] read(FileManagerBase fm, int position){
         byte[] data = new byte[0];
         while (true) {
-            try {
-                byte[] blockBytes = fm.read(position);
-                BlockDisk block = new BlockDisk(BLOCK_SIZE, INFO_SIZE);
+            BlockDisk block = new BlockDisk(fm, position);
+            byte[] content = block.getContent();
+            data = Bytes.combineBytes(data, content);
 
-                byte[] content = new byte[block.getBytesOfContent()];
-                System.arraycopy(blockBytes, INFO_SIZE, content, 0, BLOCK_SIZE - INFO_SIZE);
-
-                data = Bytes.combineBytes(data, content);
-
-                if(!block.hasNext()){
-                    break;
-                }
-                position = block.getNextBlock();
-            } catch (IOException e) {
-                e.printStackTrace();
+            if(!block.hasNext()){
+                break;
             }
+            position = block.getNextBlock();
         }
         return data;
     }
@@ -128,6 +140,10 @@ public class BlockDisk extends Prototype {
 
     public byte[] getInfo() {
         return info;
+    }
+
+    public byte[] getContent(){
+        return this.content;
     }
 
     public static int getAvailableSize(){

@@ -1,5 +1,6 @@
 package Database;
 
+import BplusTree.*;
 import FileManager.FileManagerBase;
 import Utils.Bytes;
 
@@ -17,6 +18,7 @@ public class Table{
     private Schema schema;
     private String name;
     private Path path;
+    private BplusTree tree;
 
     /**
      * for create
@@ -30,6 +32,9 @@ public class Table{
         this.name = name;
         this.path = Paths.get(this.db.getPath().toString(), name + ".table");
 
+        Path temp = Paths.get(this.db.getPath().toString(), name + ".index");
+        this.tree = new BplusTree(temp.toString(), Prototype.BLOCK_SIZE);
+
         this.update();
     }
 
@@ -42,6 +47,9 @@ public class Table{
         this.db = db;
         this.name = name;
         this.path = Paths.get(this.db.getPath().toString(), name + ".table");
+
+        Path temp = Paths.get(this.db.getPath().toString(), name + ".index");
+        this.tree = new BplusTree(temp.toString(), Prototype.BLOCK_SIZE);
 
         try {
             File file = new File(this.path.toString());
@@ -64,6 +72,40 @@ public class Table{
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean insert(Object[] data){
+        if(!check(data)){
+            System.out.println("type error in insert");
+            return false;
+        }
+        Path dataPath = Paths.get(this.db.getPath().toString(), name + ".db");
+        RowDisk rowDisk = new RowDisk(dataPath.toString(), Prototype.BLOCK_SIZE, Prototype.INFO_SIZE);
+
+        byte[] bytes = Bytes.objectsToBytes(data);
+        // TODO: other types
+        int key = (int) data[this.schema.getIndex()];
+        int value = rowDisk.write(bytes);
+
+        tree.insert(key, value);
+        return true;
+    }
+
+    /**
+     * TODO: add condition
+     * @return
+     */
+    public Row select(Object index){
+        Row row = null;
+        LeafNode leafNode = tree.get(6, tree.getRoot());
+        int position = leafNode.get((Integer) index);
+        if(position != 0) {
+            Path dataPath = Paths.get(this.db.getPath().toString(), name + ".db");
+            RowDisk rowDisk = new RowDisk(dataPath.toString(), Prototype.BLOCK_SIZE, Prototype.INFO_SIZE);
+
+            row = new Row(this, position, rowDisk);
+        }
+        return row;
     }
 
     public void update(){
@@ -97,7 +139,24 @@ public class Table{
      * @return the types of the schema
      */
     public String[] types(){
-        return (String[]) schema.getTypes().toArray();
+        String[] ts = new String[this.schema.columns()];
+        for (int i = 0; i < ts.length; ++i){
+            ts[i] = this.schema.type(i);
+        }
+        return ts;
+    }
+
+    private boolean check(Object[] objs){
+        boolean ans = true;
+        assert objs.length == this.schema.columns();
+        ArrayList<Class> classes = this.schema.getClasses();
+        for(int i = 0; i < objs.length; ++i){
+            if(objs[i].getClass() != classes.get(i)){
+                ans = false;
+                break;
+            }
+        }
+        return ans;
     }
 
     public String toString(){

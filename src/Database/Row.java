@@ -6,17 +6,22 @@ public class Row {
     /**
      * abstract row in a table
      */
-    private static int BLOCK_SIZE = 4096, INFO_SIZE = 12;
-    private int column;
-    private String fileName;
 
     private Table table;
     private RowDisk rowDisk;
-    private int index;
     private int position;
+    private Object[] data;
 
-    public Row(Table table){
+    /**
+     * create a row
+     * @param table
+     * @param position
+     */
+    public Row(Table table, int position, RowDisk rowDisk){
         this.table = table;
+        this.position = position;
+        this.rowDisk = rowDisk;
+        this.data = out();
     }
 
     private Object[] out(){
@@ -38,7 +43,13 @@ public class Row {
         return row;
     }
 
-    private void setPosition(){
-
+    public String toString(){
+        String s = new String();
+        for (int i = 0; i < this.data.length; ++i){
+            s += " | ";
+            s += this.data[i].toString();
+        }
+        s += " | \n";
+        return s;
     }
 }

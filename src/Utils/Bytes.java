@@ -10,6 +10,63 @@ import java.util.Comparator;
  */
 public class Bytes {
 
+    public static byte[] objectToBytes(Object obj){
+        if(obj.getClass() == Integer.class){
+            return Bytes.intToBytes((Integer) obj);
+        }
+        else if(obj.getClass() == Float.class){
+            // TODO
+            return null;
+        }
+        else if(obj.getClass() == Double.class){
+            // TODO
+            return null;
+        }
+        else if(obj.getClass() == Long.class){
+            return Bytes.longToBytes((Long) obj);
+        }
+        else if(obj.getClass() == String.class){
+            return Bytes.stringToBytes((String) obj);
+        }
+        else {
+            return null;
+        }
+    }
+
+    public static byte[] objectsToBytes(Object[] objs){
+        int len = 0;
+        for (Object obj : objs){
+            int size = Database.classToSize(obj.getClass());
+            len += size;
+        }
+        byte[] bytes = new byte[len];
+        int index = 0;
+        for (Object obj : objs){
+            byte[] bt = Bytes.objectToBytes(obj);
+            System.arraycopy(bt, 0, bytes, index, bt.length);
+
+            index += bt.length;
+        }
+        return bytes;
+    }
+
+    public static Object bytesToObject(byte[] bytes, String type){
+        switch (type){
+            case "Int":
+                return Bytes.bytesToInt(bytes);
+            case "Float":
+                return null;
+            case "Double":
+                return null;
+            case "Long":
+                return Bytes.bytesToLong(bytes);
+            case "String":
+                return Bytes.bytesToString(bytes);
+            default:
+                return null;
+        }
+    }
+
 
     public static String bytesToString(byte[] bytes){
         int len = 0;

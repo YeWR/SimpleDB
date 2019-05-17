@@ -104,12 +104,28 @@ public class Schema {
         return bytes;
     }
 
+    public String type(int index){
+        return this.types.get(index);
+    }
+
     public ArrayList<String> getTypes(){
         return types;
     }
 
+    public ArrayList<Class> getClasses(){
+        ArrayList<Class> classes = new ArrayList<>();
+        for(String type : this.types){
+            classes.add(Database.typeToClass(type));
+        }
+        return classes;
+    }
+
     public int columns(){
         return this.names.size();
+    }
+
+    public int getIndex(){
+        return this.index;
     }
 
     public String toString(){

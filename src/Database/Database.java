@@ -1,17 +1,10 @@
 package Database;
 
-import FileManager.FileManagerBase;
-import Utils.Bytes;
 import Utils.FileUtils;
-import javafx.scene.control.Tab;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.regex.Pattern;
 
 public class Database extends Prototype {
     public static final int INT = 1;
@@ -30,8 +23,9 @@ public class Database extends Prototype {
     private Path path;
     private HashMap<String, Table> tableInUse;
 
-    public Database(String name, int blockSize){
+    public Database(String name, int blockSize, int infoSize){
         BLOCK_SIZE = blockSize;
+        INFO_SIZE = infoSize;
         this.name = name;
 
         path = Paths.get("./data", name);
@@ -94,6 +88,44 @@ public class Database extends Prototype {
                 return Database.STRING;
             default:
                 return 0;
+        }
+    }
+
+    public static Class typeToClass(String type){
+        switch (type){
+            case "Int":
+                return Integer.class;
+            case "Long":
+                return Long.class;
+            case "Float":
+                return Float.class;
+            case "Double":
+                return Double.class;
+            case "String":
+                return String.class;
+            default:
+                return null;
+        }
+    }
+
+    public static int classToSize(Class cls){
+        if(cls == Integer.class){
+            return Database.INTSIZE;
+        }
+        else if(cls == Long.class){
+            return Database.LONGSIZE;
+        }
+        else if(cls == Float.class){
+            return Database.FLOATSIZE;
+        }
+        else if(cls == Double.class){
+            return Database.DOUBLESIZE;
+        }
+        else if(cls == String.class){
+            return Database.STRINGSIZE;
+        }
+        else {
+            return 0;
         }
     }
 

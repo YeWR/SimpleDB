@@ -50,11 +50,11 @@ public class RowDisk extends BlockDisk {
     }
 
     public int write(byte[] data) {
-        return BlockDisk.write(this.fm, data);
+        return write(this.fm, data);
     }
 
     public byte[] read(int position) {
-        return BlockDisk.read(this.fm, position);
+        return read(this.fm, position);
     }
 
     /**
