@@ -42,7 +42,7 @@ public class Schema {
         for(int i = 0; i < len; ++i){
             byte[] bs = new byte[Database.STRINGSIZE];
             System.arraycopy(bytes, index, bs, 0, Database.STRINGSIZE);
-            String name = new String(bs);
+            String name = Bytes.bytesToString(bs);
             names.add(name);
 
             index += Database.STRINGSIZE;
@@ -55,7 +55,7 @@ public class Schema {
             String type = Database.typeToString(b);
             types.add(type);
 
-            index += Database.STRINGSIZE;
+            index += 4;
         }
     }
 
@@ -66,7 +66,7 @@ public class Schema {
          * 4-*: total names of columns (stored in string_
          * *-*: total types of columns
          */
-        int total = COLUMNSIZE + len * (Database.STRINGSIZE + 1);
+        int total = COLUMNSIZE + len * (Database.STRINGSIZE + 4);
         byte[] bytes = new byte[total];
 
         int index = 0;
@@ -98,5 +98,17 @@ public class Schema {
 
     public int columns(){
         return this.names.size();
+    }
+
+    public String toString(){
+        String s = new String();
+        s += "--------------------------------------------------------------------\n";
+        for (int i = 0; i < this.columns(); ++i){
+            s += " | ";
+            s += this.names.get(i);
+        }
+        s += " | \n";
+        s += "--------------------------------------------------------------------\n";
+        return s;
     }
 }

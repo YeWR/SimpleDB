@@ -28,8 +28,14 @@ public class Table{
         this.db = db;
         this.schema = schema;
         this.name = name;
+        this.path = Paths.get(this.db.getPath().toString(), name + ".table");
 
-        path = Paths.get(this.db.getPath().toString(), name + ".table");
+        try {
+            OutputStream out = new FileOutputStream(this.path.toString());
+            out.write(this.toBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -38,7 +44,31 @@ public class Table{
      * @param name
      */
     public Table(Database db, String name){
+        this.db = db;
+        this.name = name;
+        this.path = Paths.get(this.db.getPath().toString(), name + ".table");
 
+        try {
+            File file = new File(this.path.toString());
+            Long filelength = file.length();
+            byte[] filecontent = new byte[filelength.intValue()];
+            FileInputStream in = new FileInputStream(file);
+            in.read(filecontent);
+            byte[] nameB = new byte[Database.STRINGSIZE];
+            System.arraycopy(filecontent, 0, nameB, 0, Database.STRINGSIZE);
+            String tempName = Bytes.bytesToString(nameB);
+            if(!tempName.equals(name)){
+                System.out.println("Table read error");
+                System.exit(1);
+            }
+
+            byte[] left = new byte[(int) (filelength - Database.STRINGSIZE)];
+            System.arraycopy(filecontent, Database.STRINGSIZE, left, 0, left.length);
+            this.schema = new Schema(left);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void update(){
@@ -73,5 +103,12 @@ public class Table{
      */
     public String[] types(){
         return (String[]) schema.getTypes().toArray();
+    }
+
+    public String toString(){
+        String s = new String();
+        s = "Table " + name + "\n";
+        s += this.schema.toString();
+        return s;
     }
 }

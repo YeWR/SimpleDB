@@ -11,6 +11,19 @@ import java.util.Comparator;
 public class Bytes {
 
 
+    public static String bytesToString(byte[] bytes){
+        int len = 0;
+        for (int i = 0; i < bytes.length; ++i){
+            if(bytes[i] == 0){
+                break;
+            }
+            len ++;
+        }
+        byte[] ans = new byte[len];
+        System.arraycopy(bytes, 0, ans, 0, len);
+        return new String(ans);
+    }
+
     public static byte[] stringToBytes(String s){
         byte[] bytes = new byte[Database.STRINGSIZE];
         byte[] sBytes = s.getBytes();

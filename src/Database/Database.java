@@ -28,6 +28,7 @@ public class Database extends Prototype {
 
     private String name;
     private Path path;
+    private HashMap<String, Table> tableInUse;
 
     public Database(String name, int blockSize){
         BLOCK_SIZE = blockSize;
@@ -35,20 +36,35 @@ public class Database extends Prototype {
 
         path = Paths.get("./data", name);
         FileUtils.createDir(path.toString());
+
+        tableInUse = new HashMap<String, Table>();
+    }
+
+    public Table getTable(String tableName){
+        Table table =  this.tableInUse.get(tableName);
+        if(table == null) {
+            table = new Table(this, tableName);
+            this.tableInUse.put(tableName, table);
+        }
+        return table;
     }
 
     public Table createTable(String tableName, String[] columnNames, String[] columnTypes){
-        // TODO: find the same
         Schema schema = new Schema(columnNames, columnTypes);
         return createTable(tableName, schema);
     }
 
     private Table createTable(String tableName, Schema schema){
+        if(tableIsExist(tableName)){
+            System.out.println("Table exists, cannot create table " + tableName);
+            return null;
+        }
         // create file
         Path filePath = Paths.get(path.toString(), tableName + ".table");
         FileUtils.createFile(filePath.toString());
 
         Table table = new Table(this, tableName, schema);
+        this.tableInUse.put(tableName, table);
         return table;
     }
 
@@ -113,5 +129,10 @@ public class Database extends Prototype {
             default:
                 return 0;
         }
+    }
+
+    public boolean tableIsExist(String tableName) {
+        Path filePath = Paths.get(path.toString(), tableName + ".table");
+        return FileUtils.fileExist(filePath.toString());
     }
 }

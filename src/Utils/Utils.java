@@ -17,7 +17,7 @@ public class Utils {
                 obj = Bytes.bytesToDouble(bytes);
                 break;
             case "String":
-                obj = new String(bytes);
+                obj = Bytes.bytesToString(bytes);
                 break;
             default:
                 obj = null;

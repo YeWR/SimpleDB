@@ -5,6 +5,16 @@ import java.io.IOException;
 
 public class FileUtils {
 
+    public static boolean fileExist(String fileName){
+        File file = new File(fileName);
+        if(file.exists()){
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
     public static boolean createFile(String destFileName) {
         File file = new File(destFileName);
         if(file.exists()) {
