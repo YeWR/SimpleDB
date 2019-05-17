@@ -1,5 +1,7 @@
 package Utils;
 
+import Database.Database;
+
 import java.nio.ByteBuffer;
 import java.util.Comparator;
 
@@ -8,6 +10,21 @@ import java.util.Comparator;
  */
 public class Bytes {
 
+
+    public static byte[] stringToBytes(String s){
+        byte[] bytes = new byte[Database.STRINGSIZE];
+        byte[] sBytes = s.getBytes();
+        if(sBytes.length <= Database.STRINGSIZE){
+            System.arraycopy(sBytes, 0, bytes, 0, sBytes.length);
+            return bytes;
+        }
+        else {
+            System.out.println("Warning: string too long");
+
+            System.arraycopy(sBytes, 0, bytes, 0, Database.STRINGSIZE);
+            return bytes;
+        }
+    }
 
     public static byte[] doubleToBytes(double d) {
         long value = Double.doubleToRawLongBits(d);

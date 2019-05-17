@@ -1,21 +1,16 @@
 package Test;
 
+import Database.*;
 import Utils.Bytes;
 
 public class Test {
     static public void main(String[] str){
-        byte[] b1 = Bytes.intToBytes(1);
-        byte[] b2 = new byte[0];
-        byte[] b3 = Bytes.combineBytes(b1, b2);
-        System.out.println(Bytes.bytesToInt(b3));
+        Database db = new Database();
+        String[] types = new String[2];
+        types[0] = "Int";
+        types[1] = "String";
+        Table table = new Table(db,"test", types);
 
 
     }
-}
-
-class A{
-    static public int a = 0;
-}
-
-class B extends A{
 }

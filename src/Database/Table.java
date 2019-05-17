@@ -1,22 +1,23 @@
 package Database;
 
-public class Table {
+import java.util.ArrayList;
 
-    public static final int INT = 1;
-    public static final int LONG = 2;
-    public static final int FLOAT = 3;
-    public static final int DOUBLE = 4;
-    public static final int STRING = 5;
+public class Table{
     /**
+     * @param TYPE_SIZE: type的存储byte大小
      * =========================================
      */
-    private static int TYPE_SIZE;
-
+    private Database db;
     private Schema schema;
+    private String name;
 
-    public static int getTypeSize(){
-        return TYPE_SIZE;
+    public Table(Database db, String name, Schema schema){
+        this.db = db;
+        this.schema = schema;
+        this.name = name;
     }
+
+
 
     /**
      * TODO:
@@ -30,7 +31,7 @@ public class Table {
      * TODO:
      * @return the types of the schema
      */
-    public String[] types(){
+    public ArrayList<String> types(){
         return schema.getTypes();
     }
 }

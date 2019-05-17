@@ -8,7 +8,7 @@ import jdk.nashorn.internal.ir.Block;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class RowDisk {
+public class RowDisk extends Prototype {
     /**
      * row in a table stored on the disk
      */
@@ -22,6 +22,8 @@ public class RowDisk {
     public RowDisk(String fileName, int blockSize, int infoSize){
         fm = new FileManagerBase(fileName, blockSize);
         if(fm.getSize() == 0){
+            BLOCK_SIZE = blockSize;
+            INFO_SIZE = infoSize;
             DATA_SIZE = 4;
             POINTER_SIZE = 4;
             if(BLOCK_SIZE < DATA_SIZE + POINTER_SIZE){
@@ -119,7 +121,7 @@ public class RowDisk {
      * Writes the data byte array to the header of the index file.
      * @param headerBytes - the header byte to get the index information from
      */
-    private void writeDataToHeader(byte[] headerBytes){
+    void writeDataToHeader(byte[] headerBytes){
         Bytes.intToBytes(BLOCK_SIZE, headerBytes, 0);
         headerBytes[4] = Bytes.intToByte(DATA_SIZE);
         headerBytes[5] = Bytes.intToByte(POINTER_SIZE);
@@ -135,7 +137,7 @@ public class RowDisk {
      * Sets the in-memory variables of the header from the byte array.
      * @param headerBytes - the byte array to get the header information from
      */
-    private static void readDataFromHeader(byte[] headerBytes){
+    static void readDataFromHeader(byte[] headerBytes){
         BLOCK_SIZE = Bytes.bytesToInt(headerBytes, 0);
         DATA_SIZE = Bytes.byteToInt(headerBytes[4]);
         POINTER_SIZE = Bytes.byteToInt(headerBytes[5]);
