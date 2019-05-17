@@ -2,8 +2,10 @@ package Database;
 
 import FileManager.FileManagerBase;
 import Utils.Bytes;
+import Utils.FileUtils;
 import javafx.scene.control.Tab;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -24,77 +26,42 @@ public class Database extends Prototype {
     public static final int DOUBLESIZE = 8;
     public static final int STRINGSIZE = 256;
 
-    private static int BLOCK_SIZE; //, COLUMN_SIZE;
-    private static int HEADER_SIZE;
-    private static byte[] headerBytes;
-
     private String name;
-    private HashMap<String, Table> tableHashMap;
+    private Path path;
 
     public Database(String name, int blockSize){
-        path = Paths.get("data/", name, name + ".db");
-        fm = new FileManagerBase(path.toString(), blockSize);
+        BLOCK_SIZE = blockSize;
+        this.name = name;
 
-        if(fm.getSize() == 0){
-            BLOCK_SIZE = blockSize;
-            if(overFlow()){
-                System.out.println("The block size is too small, exiting...");
-                System.exit(1);
-            }
-            headerBytes = new byte[BLOCK_SIZE];
-            writeDataToHeader(headerBytes);
-            tableHashMap = new HashMap<String, Table>();
-        }
-        else {
-            try {
-                headerBytes = fm.read(0);
-                readDataFromHeader(headerBytes);
-                if(BLOCK_SIZE != blockSize){
-                    System.out.println("The block size contained in header block did not match input block size, exiting.");
-                    System.exit(1);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        path = Paths.get("./data", name);
+        FileUtils.createDir(path.toString());
     }
 
     public Table createTable(String tableName, String[] columnNames, String[] columnTypes){
+        // TODO: find the same
         Schema schema = new Schema(columnNames, columnTypes);
         return createTable(tableName, schema);
     }
 
     private Table createTable(String tableName, Schema schema){
+        // create file
+        Path filePath = Paths.get(path.toString(), tableName + ".table");
+        FileUtils.createFile(filePath.toString());
+
         Table table = new Table(this, tableName, schema);
-        this.tableHashMap.put(tableName, table);
         return table;
     }
 
-    /**
-     * Writes the data byte array to the header of the table file.
-     * @param headerBytes
-     */
-    void writeDataToHeader(byte[] headerBytes) {
-        Bytes.intToBytes(BLOCK_SIZE, headerBytes, 0);
-        HEADER_SIZE = 4;
-        try {
-            fm.write(headerBytes, 0);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Sets the in-memory variables of the header from the byte array.
-     * @param headerBytes - the byte array to get the header information from
-     */
-    static void readDataFromHeader(byte[] headerBytes){
-        BLOCK_SIZE = Bytes.bytesToInt(headerBytes, 0);
-        HEADER_SIZE = 4;
+    private int getTableNum(){
+        return 0;
     }
 
     public String getName(){
         return this.name;
+    }
+
+    public Path getPath(){
+        return this.path;
     }
 
     public static int typeToInt(String type){

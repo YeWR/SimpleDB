@@ -5,8 +5,7 @@ import FileManager.FileManagerBase;
 import java.nio.file.Path;
 
 public class Prototype {
-    FileManagerBase fm;
-    Path path;
+    protected static int BLOCK_SIZE, INFO_SIZE;
 
     public Prototype(){
 
@@ -16,19 +15,11 @@ public class Prototype {
         return false;
     }
 
-    public int write(byte[] data){
+    public static int write(FileManagerBase fm, byte[] data){
         return 0;
     }
 
-    public byte[] read(int position){
+    public static byte[] read(FileManagerBase fm, int position){
         return null;
-    }
-
-    void writeDataToHeader(byte[] headerBytes){
-
-    }
-
-    static void readDataFromHeader(byte[] headerBytes){
-
     }
 }

@@ -22,14 +22,17 @@ public class Row {
     private Object[] out(){
         byte[] bytes = rowDisk.read(position);
         int num = table.column();
-        int k = 0;
+
         Object[] row = new Object[num];
         String[] types = table.types();
-        for (int i = 0; i < num; ++i){
-            byte[] bs = new byte[Table.getTypeSize()];
-            System.arraycopy(bytes, k, bs, 0, Table.getTypeSize());
-            k += Table.getTypeSize();
 
+        int index = 0;
+        for (int i = 0; i < num; ++i){
+            int typeSize = Database.getTypeSize(types[i]);
+            byte[] bs = new byte[typeSize];
+            System.arraycopy(bytes, index, bs, 0, typeSize);
+
+            index += typeSize;
             row[i] = Utils.byteToObject(bs, types[i]);
         }
         return row;

@@ -57,4 +57,8 @@ public class Schema {
     public ArrayList<String> getTypes(){
         return types;
     }
+
+    public int columns(){
+        return this.names.size();
+    }
 }

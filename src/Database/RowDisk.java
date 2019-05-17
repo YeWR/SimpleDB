@@ -8,18 +8,19 @@ import jdk.nashorn.internal.ir.Block;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class RowDisk extends Prototype {
+public class RowDisk extends BlockDisk {
     /**
      * row in a table stored on the disk
      */
 
-    private static int BLOCK_SIZE, INFO_SIZE, DATA_SIZE, POINTER_SIZE;
+    private static int DATA_SIZE, POINTER_SIZE;
     private static int HEADER_SIZE;
     private static byte[] headerBytes;
 
     private FileManagerBase fm;
 
     public RowDisk(String fileName, int blockSize, int infoSize){
+        super(blockSize, infoSize);
         fm = new FileManagerBase(fileName, blockSize);
         if(fm.getSize() == 0){
             BLOCK_SIZE = blockSize;
@@ -48,80 +49,19 @@ public class RowDisk extends Prototype {
         }
     }
 
-    /**
-     * write data to disk
-     * @param data: total bytes of data
-     * @return the position of the first block to write
-     */
-    public int write(byte[] data){
-        int len;
-        byte[] info;
-        byte[] content = new byte[getAvailableSize()];
-        int num = (int) Math.ceil( (double) data.length / getAvailableSize());
-        assert num > 0;
-        int[] positions = fm.getNextBlockPositions(num);
-
-        for(int i = 0; i < num; ++i){
-            if(i == num - 1){
-                len = data.length - i * getAvailableSize();
-                info = writeInfo(false, false, 0, len);
-            }
-            else {
-                len = getAvailableSize();
-                info = writeInfo(false, true, positions[i+1], len);
-            }
-            System.arraycopy(data, i * getAvailableSize(), content, 0, len);
-
-            byte[] block = Bytes.combineBytes(info, content);
-            try {
-                fm.write(block, positions[i]);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return positions[0];
+    public int write(byte[] data) {
+        return BlockDisk.write(this.fm, data);
     }
 
-    /**
-     * read data from disk
-     * @param position: the first index
-     * @return the bytes
-     */
-    public byte[] read(int position){
-        byte[] data = new byte[0];
-        while (true) {
-            try {
-                byte[] blockBytes = fm.read(position);
-                BlockDisk block = new BlockDisk(BLOCK_SIZE, INFO_SIZE, blockBytes);
-
-                byte[] content = block.getContent();
-                data = Bytes.combineBytes(data, content);
-
-                if(!block.hasNext()){
-                    break;
-                }
-                position = block.getNextBlock();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return data;
-    }
-
-    private byte[] writeInfo(boolean empty, boolean hasNext, int nextPosition, int contentBytes){
-        byte[] info = new byte[INFO_SIZE];
-        info[0] = Bytes.booleanToByte(empty);
-        info[1] = Bytes.booleanToByte(hasNext);
-        Bytes.intToBytes(nextPosition, info, 2);
-        Bytes.intToBytes(contentBytes, info, 6);
-        return info;
+    public byte[] read(int position) {
+        return BlockDisk.read(this.fm, position);
     }
 
     /**
      * Writes the data byte array to the header of the index file.
      * @param headerBytes - the header byte to get the index information from
      */
-    void writeDataToHeader(byte[] headerBytes){
+    private void writeDataToHeader(byte[] headerBytes){
         Bytes.intToBytes(BLOCK_SIZE, headerBytes, 0);
         headerBytes[4] = Bytes.intToByte(DATA_SIZE);
         headerBytes[5] = Bytes.intToByte(POINTER_SIZE);
@@ -137,14 +77,10 @@ public class RowDisk extends Prototype {
      * Sets the in-memory variables of the header from the byte array.
      * @param headerBytes - the byte array to get the header information from
      */
-    static void readDataFromHeader(byte[] headerBytes){
+    private void readDataFromHeader(byte[] headerBytes){
         BLOCK_SIZE = Bytes.bytesToInt(headerBytes, 0);
         DATA_SIZE = Bytes.byteToInt(headerBytes[4]);
         POINTER_SIZE = Bytes.byteToInt(headerBytes[5]);
         HEADER_SIZE = 6;
-    }
-
-    public static int getAvailableSize(){
-        return BLOCK_SIZE - 1 - POINTER_SIZE;
     }
 }

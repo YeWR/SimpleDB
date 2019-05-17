@@ -1,5 +1,10 @@
 package Database;
 
+import FileManager.FileManagerBase;
+import Utils.Bytes;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class Table{
@@ -10,28 +15,43 @@ public class Table{
     private Database db;
     private Schema schema;
     private String name;
+    private FileManagerBase fm;
 
     public Table(Database db, String name, Schema schema){
         this.db = db;
         this.schema = schema;
         this.name = name;
+
+        Path path = Paths.get(this.db.getPath().toString(), name + ".table");
+        fm = new FileManagerBase(path.toString(), Prototype.BLOCK_SIZE);
+        if(fm.getSize() == 0){
+
+        }
     }
 
 
+    public byte[] toBytes(){
+        /**
+         * table name
+         * schema
+         */
+        byte[] schemaData = this.schema.toBytes();
+        byte[] nameData = Bytes.stringToBytes(this.name);
+        byte[] bytes = Bytes.combineBytes(nameData, schemaData);
+        return bytes;
+    }
 
     /**
-     * TODO:
      * @return the column number of the table
      */
     public int column(){
-        return 1;
+        return this.schema.columns();
     }
 
     /**
-     * TODO:
      * @return the types of the schema
      */
-    public ArrayList<String> types(){
-        return schema.getTypes();
+    public String[] types(){
+        return (String[]) schema.getTypes().toArray();
     }
 }

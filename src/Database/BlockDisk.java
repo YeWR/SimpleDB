@@ -5,7 +5,7 @@ import Utils.Bytes;
 
 import java.io.IOException;
 
-public class BlockDisk {
+public class BlockDisk extends Prototype {
     /**
      * a block on the disk abstract
      * @param info:
@@ -15,13 +15,9 @@ public class BlockDisk {
      *            [6-9] -> the bytes of the content
      */
 
-    private int BLOCK_SIZE, INFO_SIZE;
-
     private byte[] info;
-    private byte[] block;
 
-
-    public BlockDisk(int blockSize, int infoSize, byte[] blockBytes){
+    public BlockDisk(int blockSize, int infoSize){
         BLOCK_SIZE = blockSize;
         INFO_SIZE = infoSize;
         if(INFO_SIZE < 10){
@@ -29,8 +25,77 @@ public class BlockDisk {
             System.exit(1);
         }
         info = new byte[INFO_SIZE];
-        block = blockBytes;
-        System.arraycopy(block, 0, info, 0, INFO_SIZE);
+    }
+
+    /**
+     * write data to disk
+     * @param data: total bytes of data
+     * @return the position of the first block to write
+     */
+    public static int write(FileManagerBase fm, byte[] data){
+        int len;
+        byte[] info;
+        byte[] content = new byte[getAvailableSize()];
+        int num = (int) Math.ceil( (double) data.length / getAvailableSize());
+        assert num > 0;
+        int[] positions = fm.getNextBlockPositions(num);
+
+        for(int i = 0; i < num; ++i){
+            if(i == num - 1){
+                len = data.length - i * getAvailableSize();
+                info = writeInfo(false, false, 0, len);
+            }
+            else {
+                len = getAvailableSize();
+                info = writeInfo(false, true, positions[i+1], len);
+            }
+            System.arraycopy(data, i * getAvailableSize(), content, 0, len);
+
+            byte[] block = Bytes.combineBytes(info, content);
+            try {
+                fm.write(block, positions[i]);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return positions[0];
+    }
+
+    /**
+     * read data from disk
+     * @param position: the first index
+     * @return the bytes
+     */
+    public static byte[] read(FileManagerBase fm, int position){
+        byte[] data = new byte[0];
+        while (true) {
+            try {
+                byte[] blockBytes = fm.read(position);
+                BlockDisk block = new BlockDisk(BLOCK_SIZE, INFO_SIZE);
+
+                byte[] content = new byte[block.getBytesOfContent()];
+                System.arraycopy(blockBytes, INFO_SIZE, content, 0, BLOCK_SIZE - INFO_SIZE);
+
+                data = Bytes.combineBytes(data, content);
+
+                if(!block.hasNext()){
+                    break;
+                }
+                position = block.getNextBlock();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return data;
+    }
+
+    private static byte[] writeInfo(boolean empty, boolean hasNext, int nextPosition, int contentBytes){
+        byte[] info = new byte[INFO_SIZE];
+        info[0] = Bytes.booleanToByte(empty);
+        info[1] = Bytes.booleanToByte(hasNext);
+        Bytes.intToBytes(nextPosition, info, 2);
+        Bytes.intToBytes(contentBytes, info, 6);
+        return info;
     }
 
     public void setEmpty(boolean empty){
@@ -61,13 +126,11 @@ public class BlockDisk {
         return Bytes.bytesToInt(info, 6);
     }
 
-    public byte[] getContent() {
-        byte[] content = new byte[getBytesOfContent()];
-        System.arraycopy(block, INFO_SIZE, content, 0, BLOCK_SIZE - INFO_SIZE);
-        return content;
-    }
-
     public byte[] getInfo() {
         return info;
+    }
+
+    public static int getAvailableSize(){
+        return BLOCK_SIZE - INFO_SIZE;
     }
 }
