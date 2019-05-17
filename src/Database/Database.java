@@ -81,6 +81,23 @@ public class Database extends Prototype {
         }
     }
 
+    public static String typeToString(int type){
+        switch (type){
+            case 1:
+                return "Int";
+            case 2:
+                return "Long";
+            case 3:
+                return "Float";
+            case 4:
+                return "Double";
+            case 5:
+                return "String";
+            default:
+                return null;
+        }
+    }
+
     public static int getTypeSize(String type){
         switch (type){
             case "Int":

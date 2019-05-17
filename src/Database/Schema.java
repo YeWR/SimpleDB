@@ -15,10 +15,48 @@ public class Schema {
     private ArrayList<String> names;
     private ArrayList<String> types;
 
+    /**
+     * for create
+     * @param names
+     * @param types
+     */
     public Schema(String[] names, String[] types){
         assert names.length == types.length;
         this.names = new ArrayList<>(Arrays.asList(names));
         this.types = new ArrayList<>(Arrays.asList(types));
+    }
+
+    /**
+     * for read
+     * @param bytes
+     */
+    public Schema(byte[] bytes){
+        byte[] temp = new byte[COLUMNSIZE];
+        System.arraycopy(bytes, 0, temp, 0, COLUMNSIZE);
+
+        int len = Bytes.bytesToInt(temp);
+        names = new ArrayList<>();
+        types = new ArrayList<>();
+
+        int index = COLUMNSIZE;
+        for(int i = 0; i < len; ++i){
+            byte[] bs = new byte[Database.STRINGSIZE];
+            System.arraycopy(bytes, index, bs, 0, Database.STRINGSIZE);
+            String name = new String(bs);
+            names.add(name);
+
+            index += Database.STRINGSIZE;
+        }
+
+        for(int i = 0; i < len; ++i){
+            byte[] bs = new byte[4];
+            System.arraycopy(bytes, index, bs, 0, 4);
+            int b = Bytes.bytesToInt(bs);
+            String type = Database.typeToString(b);
+            types.add(type);
+
+            index += Database.STRINGSIZE;
+        }
     }
 
     public byte[] toBytes(){

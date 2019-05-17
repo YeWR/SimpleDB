@@ -3,6 +3,7 @@ package Database;
 import FileManager.FileManagerBase;
 import Utils.Bytes;
 
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -15,20 +16,39 @@ public class Table{
     private Database db;
     private Schema schema;
     private String name;
-    private FileManagerBase fm;
+    private Path path;
 
+    /**
+     * for create
+     * @param db
+     * @param name
+     * @param schema
+     */
     public Table(Database db, String name, Schema schema){
         this.db = db;
         this.schema = schema;
         this.name = name;
 
-        Path path = Paths.get(this.db.getPath().toString(), name + ".table");
-        fm = new FileManagerBase(path.toString(), Prototype.BLOCK_SIZE);
-        if(fm.getSize() == 0){
-
-        }
+        path = Paths.get(this.db.getPath().toString(), name + ".table");
     }
 
+    /**
+     * for read
+     * @param db
+     * @param name
+     */
+    public Table(Database db, String name){
+
+    }
+
+    public void update(){
+        try {
+            OutputStream f = new FileOutputStream(path.toString());
+            f.write(this.toBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public byte[] toBytes(){
         /**
