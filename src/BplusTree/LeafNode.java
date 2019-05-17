@@ -96,7 +96,7 @@ public class LeafNode extends Node {
         if(Bytes.getLastIndex(keys) > BplusTree.getKeySize() * BplusTree.getOrder()){
             // The LeafNode became full after inserting, so we have to split it.
             // this.log("This LeafNode is full. Splitting.");
-            rightNode = new LeafNode(tree.getFileManager().getSize());
+            rightNode = new LeafNode(tree.getFileManagerBase().getSize());
             // this.log("Created new LeafNode with ID " + rightNode.getID());
             byte[] keysForRightNode = new byte[BplusTree.getKeySize()*BplusTree.getOrder()];
             byte[] pointersForRightNode = new byte[BplusTree.getPointerSize()*(BplusTree.getOrder()+1)];
@@ -121,26 +121,26 @@ public class LeafNode extends Node {
             leftNode.setRightLeaf(rightNode.getID());
             if(leftNode.isRoot()){
                 // Create a new root
-                int id = tree.getFileManager().getSize();
+                int id = tree.getFileManagerBase().getSize();
                 // this.log("Split LeftNode " + this.getID() + " was previously root, creating new root InternalNode w/ ID " + id);
                 newInternal = new InternalNode(id);
                 tree.setRoot(newInternal.getID(), 0);
                 newInternal.setSmallestPointer(leftNode.getID());
                 newInternal.insert(Bytes.bytesToInt(rightNode.getKeys(), 0), rightNode.getID(), tree);
-                tree.getFileManager().write(newInternal.toBytes());
+                tree.getFileManagerBase().write(newInternal.toBytes());
             }else{
                 // Push the new right node ID to parent
                 newInternal = (InternalNode) leftNode.parent;
                 // this.log("Pushing up right node ID " + rightNode.getID() + " to parent ID " + newInternal.getID());
                 newInternal.insert(Bytes.bytesToInt(rightNode.getKeys(), 0), rightNode.getID(), tree);
-                tree.getFileManager().write(newInternal.toBytes(), newInternal.getID());
+                tree.getFileManagerBase().write(newInternal.toBytes(), newInternal.getID());
             }
         }
-        if(rightNode != null) tree.getFileManager().write(rightNode.toBytes(), rightNode.getID());
+        if(rightNode != null) tree.getFileManagerBase().write(rightNode.toBytes(), rightNode.getID());
         leftNode.setKeys(keys);
         leftNode.setPointers(pointers);
         leftNode.printKeyDiskPointers();
-        tree.getFileManager().write(leftNode.toBytes(), leftNode.getID());
+        tree.getFileManagerBase().write(leftNode.toBytes(), leftNode.getID());
     }
 
     public int get(int key){

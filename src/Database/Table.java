@@ -30,12 +30,7 @@ public class Table{
         this.name = name;
         this.path = Paths.get(this.db.getPath().toString(), name + ".table");
 
-        try {
-            OutputStream out = new FileOutputStream(this.path.toString());
-            out.write(this.toBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        this.update();
     }
 
     /**

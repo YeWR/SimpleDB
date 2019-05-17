@@ -1,5 +1,7 @@
 package BplusTree;
 
+import BplusTree.LeafNode;
+import BplusTree.Node;
 import FileManager.FileManagerBase;
 import Utils.Bytes;
 
@@ -55,7 +57,7 @@ public class BplusTree {
                 // There is a root, find it and start inserting from there
                 if(ROOT_IS_LEAF == 1){
                     // Root was leaf, just insert the key value.
-                    LeafNode root = new LeafNode(Bytes.bytesToInt(fm.read(ROOT_ID)));
+                    LeafNode root = new LeafNode(fm.read(ROOT_ID));
                     root.insert(key, value, this);
                 }else{
                     // Root is internal, find the correct leaf and write to it
@@ -101,7 +103,7 @@ public class BplusTree {
                 temporaryParent = null;
                 return (LeafNode) node;
             }else{
-//                node.log("Searching for key in " + node.getID());
+                node.log("Searching for key in " + node.getID());
                 return get(key, ((InternalNode)node).get(key));
             }
         } catch (IOException e) {
@@ -111,7 +113,7 @@ public class BplusTree {
     }
 
     /**
-     * Sets the root of the BPlusTree
+     * Sets the root of the BplusTree
      * @param rootID - the block ID of the root
      * @param isLeaf - if the root is a leaf or not
      */
@@ -162,7 +164,7 @@ public class BplusTree {
     public void resetTreeLevel(){
         this.TREE_LEVEL = 0;
     }
-    public FileManagerBase getFileManager(){
+    public FileManagerBase getFileManagerBase(){
         return fm;
     }
     /**
@@ -241,7 +243,7 @@ public class BplusTree {
      */
     public void dumpIndex(){
         int blockNumber = 0;
-//        CLI.log("Dumping index file to console.. \n");
+        CLI.log("Dumping index file to console.. \n");
         while(blockNumber < fm.getSize()){
             try {
                 byte[] data = fm.read(blockNumber);

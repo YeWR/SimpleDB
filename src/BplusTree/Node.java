@@ -1,26 +1,25 @@
 package BplusTree;
 
 import Utils.Bytes;
-import Utils.Log;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
-public abstract class Node {
+public abstract class Node{
+
     protected byte[] header;
     protected byte[] keys;
     protected byte[] pointers;
 
     Node parent;
-
     /**
      * Base constructor for Node.
      * @param ID - the ID of the Node (i.e the block number storing the Node)
      */
     public Node(int ID){
         this.header = new byte[9];
-        Bytes.intToBytes(ID, this.header, 0);
+        Bytes.intToBytes(ID, header, 0);
     }
-
     /**
      * Constructor for Node
      * @param ID - - the ID of the Node (i.e the block number storing the Node)
@@ -43,16 +42,17 @@ public abstract class Node {
 
     public void setParent(Node parent){
         if(parent != null){
+            if(this.isLeaf()){
+                this.log("Set parent " + parent.getID() + " for LeafNode " + this.getID());
+            }else{
+                this.log("Set parent " + parent.getID() + " for InternalNode " + this.getID());
+            }
             this.parent = parent;
         }else{
-
         }
     }
-
     public int getParent(){
-        if(this.parent != null ) {
-            return this.parent.getID();
-        }
+        if(this.parent != null ) return this.parent.getID();
         return 0;
     }
 
@@ -61,7 +61,7 @@ public abstract class Node {
     }
 
     public void setKeys(byte[] keys){
-        if(keys.length > this.keys.length + BplusTree.getKeySize()){
+        if(keys.length > this.keys.length+BplusTree.getKeySize()){
             throw new IndexOutOfBoundsException("Tried to set keys with size " + keys.length + ".");
         }
         this.keys = keys;
@@ -72,7 +72,7 @@ public abstract class Node {
     }
 
     public void setPointers(byte[] pointers){
-        if(pointers.length > this.pointers.length + BplusTree.getPointerSize()){
+        if(pointers.length > this.pointers.length+BplusTree.getPointerSize()){
             // pointer byte array larger than what is allowed
             throw new IndexOutOfBoundsException("Tried to set pointers with size " + pointers.length + ".");
         }
@@ -86,7 +86,6 @@ public abstract class Node {
     public int getOrder(){
         return BplusTree.getOrder();
     }
-
     /**
      * Method used for converting the Node data object to a byte array for storage to {@code RandomAccessFile}.
      * @return the byte representation of the header, keys and pointers of this node
@@ -95,15 +94,28 @@ public abstract class Node {
         ByteBuffer bb = ByteBuffer.allocate(BplusTree.getBlockSize());
         bb.put(this.header);
         // Store the keys except for the last four extra bytes
-        for(int i = 0; i < this.keys.length - 4; i += 4){
+        for(int i=0;i<this.keys.length-4;i+=4){
             bb.putInt(Bytes.bytesToInt(this.keys, i));
         }
         // Store the pointers except for the last four extra bytes
-        for(int i = 0; i < this.pointers.length - 4;i += 4){
+        for(int i=0;i<this.pointers.length-4;i+=4){
             bb.putInt(Bytes.bytesToInt(this.pointers, i));
         }
         byte[] result = bb.array();
         bb.clear();
         return result;
+    }
+    /**
+     * General log function for writing important messages to console and log file in
+     * the correct order
+     * @param message the message to write
+     * @see CLI
+     */
+    public void log(String message){
+        if(CLI.VERBOSITY != "none"){
+            System.out.println(message);
+            CLI.pw.println(message);
+            System.out.flush();
+        }
     }
 }
