@@ -274,7 +274,7 @@ public class Table{
         close();
         boolean over = deleteDir(this.path.toString());
         if(!over){
-            System.out.println("Delete Table failed!");
+            System.out.println("Delete Table Failed!");
         }
     }
 

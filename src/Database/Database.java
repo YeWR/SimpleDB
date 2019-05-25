@@ -189,6 +189,9 @@ public class Database extends Prototype {
                 entry.getValue().deleteTable();
             }
         }
-        deleteDir(this.path.toString());
+        boolean over = deleteDir(this.path.toString());
+        if(!over){
+            System.out.println("Delete Database Failed!");
+        }
     }
 }
