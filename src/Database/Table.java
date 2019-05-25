@@ -133,6 +133,13 @@ public class Table{
             System.out.println("type error in insert");
             return false;
         }
+
+        // check index
+        if(!checkSameIndex(data)){
+            System.out.println("There exists a row of same index!");
+            return false;
+        }
+
         Path dataPath = Paths.get(this.path.toString(), this.name + ".db");
         RowDisk rowDisk = new RowDisk(dataPath.toString(), Prototype.BLOCK_SIZE, Prototype.INFO_SIZE);
 
@@ -225,6 +232,21 @@ public class Table{
         ArrayList<Class> classes = this.schema.getClasses();
         for(int i = 0; i < objs.length; ++i){
             if(objs[i].getClass() != classes.get(i)){
+                ans = false;
+                break;
+            }
+        }
+        return ans;
+    }
+
+    private boolean checkSameIndex(Object[] objs){
+        boolean ans = true;
+        for(int id : this.schema.getIndexes()){
+            String idName = this.schema.name(id);
+            BplusTree tree = this.trees.get(idName);
+            Object value = objs[id];
+            int position = (int) tree.find(value);
+            if(position != 0){
                 ans = false;
                 break;
             }

@@ -88,8 +88,12 @@ public class BplusTree<T> {
 	}
 	
 	public long find(T key) {
-
-		return root.find(key) ;
+		if(root == null){
+			return 0;
+		}
+		else {
+			return root.find(key);
+		}
 	}
 	
 	public byte[] getNext() {
