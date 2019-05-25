@@ -1,5 +1,10 @@
 package FileManager;
 
+import Database.BlockDisk;
+import Database.Database;
+import Database.Prototype;
+import Utils.Bytes;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -144,7 +149,24 @@ public class FileManagerBase {
      */
     public int[] getNextBlockPositions(int num){
         int[] positions = new int[num];
-        for (int i = 0; i < num; ++i){
+        int index = 0;
+
+        for(int i = 1; i < this.size; ++i){
+            ByteBuffer infoBuffer = ByteBuffer.allocate(1);
+            try {
+                this.fc.read(infoBuffer, i * this.blockSize);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            byte info = infoBuffer.array()[0];
+            boolean empty = Bytes.byteToBoolean(info);
+            if(empty && index < num){
+                positions[index] = i;
+                index ++;
+            }
+        }
+
+        for (int i = index; i < num; ++i){
             positions[i] = this.size + i;
         }
         return positions;
