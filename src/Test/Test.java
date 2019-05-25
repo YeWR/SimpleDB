@@ -18,7 +18,7 @@ public class Test {
             names[i] = "attri" + String.valueOf(i);
             types[i] = "String";
             data[i] = String.valueOf(i);
-            data2[i] = String.valueOf(i * 2);
+            data2[i] = String.valueOf(i +102);
         }
         indexes[0] = "attri0";
 
@@ -33,6 +33,19 @@ public class Test {
     static void selectTest(Table table){
         Row row = table.select("attri0", "0");
         System.out.println(row);
+    }
+
+    static void updateTest(Table table){
+        Object[] data = new Object[4];
+
+        for(int i = 0; i < data.length; ++i){
+            data[i] = String.valueOf(i);
+        }
+        data[2] = "123";
+
+        table.update("attri0", "0", data);
+        Row row = table.select("attri0", "0");
+        System.out.println(row.toString());
     }
 
     static void deleteTest(Table table){
@@ -50,7 +63,11 @@ public class Test {
 
     static public void main(String[] str){
         Database db = new Database("testDB", 2048, 20);//
-        deleteTable(db);
-//        createTable(db, "table1");
+//        deleteTable(db);
+        Table table = createTable(db, "table1");
+        selectTest(table);
+
+        updateTest(table);
+
     }
 }

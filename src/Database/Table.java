@@ -48,7 +48,7 @@ public class Table{
         FileUtils.createFile(filePath.toString());
 
         this.initIndex();
-        this.update();
+        this.writeToFile();
     }
 
     /**
@@ -174,7 +174,13 @@ public class Table{
         tree.delete(index);
     }
 
-    public void update(){
+    public void update(String idName, Object index, Object[] data){
+        // TODO: 查重
+        this.delete(idName, index);
+        this.insert(data);
+    }
+
+    public void writeToFile(){
         try {
             OutputStream f = new FileOutputStream(filePath.toString());
             f.write(this.toBytes());
