@@ -15,9 +15,9 @@ public class Test {
 
         for(int i = 0; i < names.length; ++i){
             names[i] = "attri" + String.valueOf(i);
-            types[i] = "Int";
-            data[i] = new Integer(i + 2);
-            data2[i] = new Integer(i * 4);
+            types[i] = "String";
+            data[i] = String.valueOf(i);
+            data2[i] = String.valueOf(i * 2);
         }
 
         indexes[0] = "attri0";
