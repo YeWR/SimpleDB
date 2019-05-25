@@ -149,13 +149,24 @@ public class Table{
     public Row select(String idName, Object index){
         Row row = null;
         int position = (int) this.trees.get(idName).find(index);
-        if(position != 0) {
+        if(position > 0) {
             Path dataPath = Paths.get(this.path.toString(), name + ".db");
             RowDisk rowDisk = new RowDisk(dataPath.toString(), Prototype.BLOCK_SIZE, Prototype.INFO_SIZE);
 
             row = new Row(this, position, rowDisk);
         }
         return row;
+    }
+
+    public void delete(String idName, Object index){
+        BplusTree tree = this.trees.get(idName);
+        int position = (int) tree.find(index);
+        // delete data
+        Path dataPath = Paths.get(this.path.toString(), name + ".db");
+        FileManagerBase deleteFm = new FileManagerBase(dataPath.toString(), Prototype.BLOCK_SIZE);
+        BlockDisk.delete(deleteFm, position);
+        // delete index
+        tree.delete(index);
     }
 
     public void update(){

@@ -153,7 +153,7 @@ public class BplusNode<T>  {
 			
 		}
 
-		return Long.parseLong(null);
+		return 0;
 	}
 	
 	public void delete(T key) {

@@ -32,6 +32,10 @@ public class Test {
         Row row = table.select("attri0", data[0]);
         System.out.println(row);
 
+        table.delete("attri0", data[0]);
+        row = table.select("attri0", data[0]);
+        System.out.println(row);
+
 
 //        BplusTree tree = new BplusTree("./data/testDB/table1.db", 1024);
 //        int rootID = tree.getRoot();

@@ -81,6 +81,23 @@ public class BlockDisk extends Prototype {
         return positions[0];
     }
 
+    public static void delete(FileManagerBase fm, int position){
+        boolean over = false;
+        while (!over && position > 0){
+            BlockDisk block = new BlockDisk(fm, position);
+            if(!block.hasNext()){
+                over = true;
+            }
+            byte[] info = writeInfo(true, false, 0, 0);
+            try {
+                fm.write(info, position);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            position = block.getNextBlock();
+        }
+    }
+
     /**
      * read data from disk
      * @param position: the first index

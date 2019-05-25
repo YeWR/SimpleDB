@@ -88,8 +88,7 @@ public class BplusTree<T> {
 	}
 	
 	public long find(T key) {
-		
-		
+
 		return root.find(key) ;
 	}
 	
