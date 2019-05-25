@@ -6,6 +6,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 
+import static Utils.FileUtils.deleteDir;
+
 public class Database extends Prototype {
     public static final int INT = 1;
     public static final int LONG = 2;
@@ -168,5 +170,9 @@ public class Database extends Prototype {
     public boolean tableIsExist(String tableName) {
         Path filePath = Paths.get(path.toString(), tableName + ".table");
         return FileUtils.fileExist(filePath.toString());
+    }
+
+    public void deleteDB(){
+        deleteDir(this.path.toString());
     }
 }

@@ -3,6 +3,7 @@ package Test;
 import BplusTree.*;
 import Database.*;
 import Utils.Bytes;
+import javafx.scene.control.Tab;
 
 public class Test {
 
@@ -38,12 +39,18 @@ public class Test {
         table.delete("attri0", "0");
     }
 
+    static void deleteDB(Database db){
+        db.deleteDB();
+    }
+
+    static void deleteTable(Database db){
+        Table table = db.getTable("table1");
+        table.deleteTable();
+    }
+
     static public void main(String[] str){
         Database db = new Database("testDB", 2048, 20);//
-
-//        Table table = createTest(db, "table1");
-//        selectTest(table);
-        Table table = db.getTable("table1");
-        selectTest(table);
+        deleteTable(db);
+//        createTable(db, "table1");
     }
 }

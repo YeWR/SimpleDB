@@ -2,6 +2,8 @@ package Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class FileUtils {
 
@@ -68,6 +70,21 @@ public class FileUtils {
             // System.out.println("创建目录" + destDirName + "失败！");
             return false;
         }
+    }
+
+    public static boolean deleteDir(String dirName){
+        File dir = new File(dirName);
+        if (dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i=0; i<children.length; i++) {
+                boolean success = deleteDir(Paths.get(dirName, children[i]).toString());
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+        // 目录此时为空，可以删除
+        return dir.delete();
     }
 
 

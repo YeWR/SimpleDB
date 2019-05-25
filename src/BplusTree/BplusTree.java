@@ -191,7 +191,13 @@ public class BplusTree<T> {
 		
 	}
 	
-	
+	public void close(){
+		try {
+			treeStore.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	
 	public long getFilePointer() throws IOException {

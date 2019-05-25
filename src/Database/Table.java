@@ -14,6 +14,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+
+import static Utils.FileUtils.deleteDir;
 
 public class Table{
     /**
@@ -65,6 +68,8 @@ public class Table{
             byte[] filecontent = new byte[filelength.intValue()];
             FileInputStream in = new FileInputStream(file);
             in.read(filecontent);
+            in.close();
+
             byte[] nameB = new byte[Database.STRINGSIZE];
             System.arraycopy(filecontent, 0, nameB, 0, Database.STRINGSIZE);
             String tempName = Bytes.bytesToString(nameB);
@@ -173,6 +178,7 @@ public class Table{
         try {
             OutputStream f = new FileOutputStream(filePath.toString());
             f.write(this.toBytes());
+            f.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -218,6 +224,13 @@ public class Table{
             }
         }
         return ans;
+    }
+
+    public void deleteTable(){
+        for (Map.Entry<String, BplusTree> entry : trees.entrySet()){
+            entry.getValue().close();
+        }
+        deleteDir(this.path.toString());
     }
 
     public String toString(){
