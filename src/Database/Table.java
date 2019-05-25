@@ -3,11 +3,17 @@ package Database;
 import BplusTree.*;
 import FileManager.FileManagerBase;
 import Utils.Bytes;
+import Utils.FileUtils;
+import Utils.IntegerComparator;
+import Utils.StringComparator;
+import serialization.IntegerSerDeser;
+import serialization.StringSerDeser;
 
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Table{
     /**
@@ -18,7 +24,8 @@ public class Table{
     private Schema schema;
     private String name;
     private Path path;
-    private BplusTree tree;
+    private Path filePath;
+    private HashMap<String, BplusTree> trees;
 
     /**
      * for create
@@ -30,11 +37,13 @@ public class Table{
         this.db = db;
         this.schema = schema;
         this.name = name;
-        this.path = Paths.get(this.db.getPath().toString(), name + ".table");
 
-        Path temp = Paths.get(this.db.getPath().toString(), name + ".index");
-        this.tree = new BplusTree(temp.toString(), Prototype.BLOCK_SIZE);
+        this.path = Paths.get(this.db.getPath().toString(), this.name);
+        FileUtils.createDir(path.toString());
 
+        this.filePath = Paths.get(this.path.toString(), this.name + ".table");
+
+        this.initIndex();
         this.update();
     }
 
@@ -46,10 +55,8 @@ public class Table{
     public Table(Database db, String name){
         this.db = db;
         this.name = name;
-        this.path = Paths.get(this.db.getPath().toString(), name + ".table");
-
-        Path temp = Paths.get(this.db.getPath().toString(), name + ".index");
-        this.tree = new BplusTree(temp.toString(), Prototype.BLOCK_SIZE);
+        this.path = Paths.get(this.db.getPath().toString(), this.name);
+        this.filePath = Paths.get(this.path.toString(), this.name + ".table");
 
         try {
             File file = new File(this.path.toString());
@@ -69,9 +76,50 @@ public class Table{
             System.arraycopy(filecontent, Database.STRINGSIZE, left, 0, left.length);
             this.schema = new Schema(left);
 
+            this.initIndex();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void initIndex(){
+        ArrayList<Integer> indexes = schema.getIndexes();
+        this.trees = new HashMap<String, BplusTree>(indexes.size());
+        for (int id : indexes) {
+            String idName = this.schema.name(id);
+            String idType = this.schema.type(id);
+
+            this.trees.put(idName, this.newIndex(idName, idType));
+        }
+    }
+
+    /**
+     *
+     * @param indexName
+     * @param indexType
+     * @return
+     */
+    private BplusTree newIndex(String indexName, String indexType){
+        Path temp = Paths.get(this.path.toString(), name + "_" + indexName + ".index");
+        if(indexType.equals("String")){
+            try {
+                return new BplusTree<String>(temp.toString(), 4, 128, new StringSerDeser(), new StringComparator());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else if(indexType.equals("Int")){
+            try {
+                return new BplusTree<Integer>(temp.toString(), 4, 128, new IntegerSerDeser(), new IntegerComparator());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            // TODO: other types;
+            return null;
+        }
+        return null;
     }
 
     public boolean insert(Object[] data){
@@ -79,15 +127,16 @@ public class Table{
             System.out.println("type error in insert");
             return false;
         }
-        Path dataPath = Paths.get(this.db.getPath().toString(), name + ".db");
+        Path dataPath = Paths.get(this.path.toString(), this.name + ".db");
         RowDisk rowDisk = new RowDisk(dataPath.toString(), Prototype.BLOCK_SIZE, Prototype.INFO_SIZE);
 
         byte[] bytes = Bytes.objectsToBytes(data);
-        // TODO: other types
-        int key = (int) data[this.schema.getIndex()];
         int value = rowDisk.write(bytes);
 
-        tree.insert(key, value);
+        for(int id : this.schema.getIndexes()){
+            Object key = data[id];
+            trees.get(id).insert(key, value);
+        }
         return true;
     }
 
@@ -95,10 +144,9 @@ public class Table{
      * TODO: add condition
      * @return
      */
-    public Row select(Object index){
+    public Row select(int id, Object index){
         Row row = null;
-        LeafNode leafNode = tree.get(6, tree.getRoot());
-        int position = leafNode.get((Integer) index);
+        int position = (int) this.trees.get(id).find(index);
         if(position != 0) {
             Path dataPath = Paths.get(this.db.getPath().toString(), name + ".db");
             RowDisk rowDisk = new RowDisk(dataPath.toString(), Prototype.BLOCK_SIZE, Prototype.INFO_SIZE);

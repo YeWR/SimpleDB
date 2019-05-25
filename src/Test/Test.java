@@ -10,11 +10,13 @@ public class Test {
         String[] names = new String[4];
         String[] types = new String[4];
         Object[] data = new Object[4];
+        Object[] data2 = new Object[4];
 
         for(int i = 0; i < names.length; ++i){
             names[i] = "attri" + String.valueOf(i);
             types[i] = "Int";
             data[i] = new Integer(i + 2);
+            data2[i] = new Integer(i * 4);
         }
 
         db.createTable("table1", names, types, "attri0");
@@ -22,7 +24,8 @@ public class Test {
         System.out.println(table.toString());
 
 
-//        table.insert(data);
+        table.insert(data);
+        table.insert(data2);
         Row row = table.select(data[0]);
         System.out.println(row);
 

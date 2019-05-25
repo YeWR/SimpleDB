@@ -14,20 +14,24 @@ public class Schema {
 
     private ArrayList<String> names;
     private ArrayList<String> types;
-    private int index;
+    private ArrayList<Integer> indexes;
 
     /**
      * for create
      * @param names
      * @param types
      */
-    public Schema(String[] names, String[] types, String indexName){
+    public Schema(String[] names, String[] types, String[] indexNames){
         assert names.length == types.length;
         this.names = new ArrayList<>(Arrays.asList(names));
         this.types = new ArrayList<>(Arrays.asList(types));
 
-        this.index = this.names.indexOf(indexName);
-        assert this.index >= 0;
+        this.indexes = new ArrayList<Integer>(indexNames.length);
+        for (String index : indexNames) {
+            int id = this.names.indexOf(index);
+            assert id >= 0;
+            this.indexes.add(id);
+        }
     }
 
     /**
@@ -64,7 +68,16 @@ public class Schema {
 
         byte[] temp1 = new byte[4];
         System.arraycopy(bytes, id, temp1, 0, temp1.length);
-        this.index = Bytes.bytesToInt(temp1);
+        id += 4;
+
+        int indexNum = Bytes.bytesToInt(temp1);
+        this.indexes = new ArrayList<Integer>(indexNum);
+        for (int i = 0; i < indexNum; ++i){
+            byte[] bs = new byte[4];
+            System.arraycopy(bytes, id, bs, 0, 4);
+            int b = Bytes.bytesToInt(bs);
+            this.indexes.add(b);
+        }
     }
 
     public byte[] toBytes(){
@@ -98,10 +111,21 @@ public class Schema {
             id += bs.length;
         }
 
-        byte[] temp1 = Bytes.intToBytes(this.index);
+        byte[] temp1 = Bytes.intToBytes(this.indexes.size());
         System.arraycopy(temp1, 0, bytes, id, temp1.length);
+        id += temp1.length;
 
+        for(int i : this.indexes){
+            byte[] bs = Bytes.intToBytes(i);
+            System.arraycopy(bs, 0, bytes, id, bs.length);
+
+            id += bs.length;
+        }
         return bytes;
+    }
+
+    public String name(int index){
+        return this.names.get(index);
     }
 
     public String type(int index){
@@ -124,8 +148,8 @@ public class Schema {
         return this.names.size();
     }
 
-    public int getIndex(){
-        return this.index;
+    public ArrayList<Integer> getIndexes(){
+        return this.indexes;
     }
 
     public String toString(){
@@ -134,7 +158,7 @@ public class Schema {
         for (int i = 0; i < this.columns(); ++i){
             s += " | ";
             s += this.names.get(i);
-            if(i == this.index){
+            if(this.indexes.indexOf(i) != -1){
                 s += "(*)";
             }
         }
