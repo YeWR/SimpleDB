@@ -155,6 +155,7 @@ public class FileManagerBase {
             ByteBuffer infoBuffer = ByteBuffer.allocate(1);
             try {
                 this.fc.read(infoBuffer, i * this.blockSize);
+                this.numReadWrites ++;
             } catch (IOException e) {
                 e.printStackTrace();
             }

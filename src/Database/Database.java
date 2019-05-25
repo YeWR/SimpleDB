@@ -1,10 +1,12 @@
 package Database;
 
 import Utils.FileUtils;
+import javafx.scene.control.Tab;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Map;
 
 import static Utils.FileUtils.deleteDir;
 
@@ -172,7 +174,21 @@ public class Database extends Prototype {
         return FileUtils.fileExist(filePath.toString());
     }
 
+    public void close(){
+        if(this.tableInUse == null){
+            return;
+        }
+        for (Map.Entry<String, Table> entry : this.tableInUse.entrySet()){
+            entry.getValue().close();
+        }
+    }
+
     public void deleteDB(){
+        if(this.tableInUse != null){
+            for (Map.Entry<String, Table> entry : this.tableInUse.entrySet()){
+                entry.getValue().deleteTable();
+            }
+        }
         deleteDir(this.path.toString());
     }
 }

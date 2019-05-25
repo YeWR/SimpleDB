@@ -83,4 +83,12 @@ public class RowDisk extends BlockDisk {
         POINTER_SIZE = Bytes.byteToInt(headerBytes[5]);
         HEADER_SIZE = 6;
     }
+
+    public void close(){
+        try {
+            this.fm.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

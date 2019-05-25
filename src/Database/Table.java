@@ -145,6 +145,7 @@ public class Table{
 
         byte[] bytes = Bytes.objectsToBytes(data);
         int value = rowDisk.write(bytes);
+        rowDisk.close();
 
         for(int id : this.schema.getIndexes()){
             Object key = data[id];
@@ -177,6 +178,12 @@ public class Table{
         Path dataPath = Paths.get(this.path.toString(), name + ".db");
         FileManagerBase deleteFm = new FileManagerBase(dataPath.toString(), Prototype.BLOCK_SIZE);
         BlockDisk.delete(deleteFm, position);
+        try {
+            deleteFm.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         // delete index
         tree.delete(index);
     }
@@ -254,11 +261,21 @@ public class Table{
         return ans;
     }
 
-    public void deleteTable(){
+    public void close(){
+        if(trees == null){
+            return;
+        }
         for (Map.Entry<String, BplusTree> entry : trees.entrySet()){
             entry.getValue().close();
         }
-        deleteDir(this.path.toString());
+    }
+
+    public void deleteTable(){
+        close();
+        boolean over = deleteDir(this.path.toString());
+        if(!over){
+            System.out.println("Delete Table failed!");
+        }
     }
 
     public String toString(){

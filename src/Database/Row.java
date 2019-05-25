@@ -40,6 +40,7 @@ public class Row {
             index += typeSize;
             row[i] = Utils.byteToObject(bs, types[i]);
         }
+        rowDisk.close();
         return row;
     }
 

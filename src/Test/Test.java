@@ -63,11 +63,14 @@ public class Test {
 
     static public void main(String[] str){
         Database db = new Database("testDB", 2048, 20);//
-//        deleteTable(db);
+//        deleteDB(db);
         Table table = createTable(db, "table1");
+//        deleteTable(db);
         selectTest(table);
 
         updateTest(table);
+//        deleteTable(db);
+        deleteDB(db);
 
     }
 }
