@@ -42,6 +42,7 @@ public class Table{
         FileUtils.createDir(path.toString());
 
         this.filePath = Paths.get(this.path.toString(), this.name + ".table");
+        FileUtils.createFile(filePath.toString());
 
         this.initIndex();
         this.update();
@@ -59,7 +60,7 @@ public class Table{
         this.filePath = Paths.get(this.path.toString(), this.name + ".table");
 
         try {
-            File file = new File(this.path.toString());
+            File file = new File(this.filePath.toString());
             Long filelength = file.length();
             byte[] filecontent = new byte[filelength.intValue()];
             FileInputStream in = new FileInputStream(file);
@@ -135,7 +136,8 @@ public class Table{
 
         for(int id : this.schema.getIndexes()){
             Object key = data[id];
-            trees.get(id).insert(key, value);
+            String name = this.schema.name(id);
+            trees.get(name).insert(key, value);
         }
         return true;
     }
@@ -144,11 +146,11 @@ public class Table{
      * TODO: add condition
      * @return
      */
-    public Row select(int id, Object index){
+    public Row select(String idName, Object index){
         Row row = null;
-        int position = (int) this.trees.get(id).find(index);
+        int position = (int) this.trees.get(idName).find(index);
         if(position != 0) {
-            Path dataPath = Paths.get(this.db.getPath().toString(), name + ".db");
+            Path dataPath = Paths.get(this.path.toString(), name + ".db");
             RowDisk rowDisk = new RowDisk(dataPath.toString(), Prototype.BLOCK_SIZE, Prototype.INFO_SIZE);
 
             row = new Row(this, position, rowDisk);
@@ -158,7 +160,7 @@ public class Table{
 
     public void update(){
         try {
-            OutputStream f = new FileOutputStream(path.toString());
+            OutputStream f = new FileOutputStream(filePath.toString());
             f.write(this.toBytes());
         } catch (IOException e) {
             e.printStackTrace();

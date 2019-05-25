@@ -88,7 +88,7 @@ public class Schema {
          * *-*: total types of columns
          * *-*: index
          */
-        int total = COLUMNSIZE + len * (Database.STRINGSIZE + 4) + INDEXSIZE;
+        int total = COLUMNSIZE + len * (Database.STRINGSIZE + 4) + INDEXSIZE + indexes.size() * INDEXSIZE;
         byte[] bytes = new byte[total];
 
         int id = 0;

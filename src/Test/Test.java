@@ -9,6 +9,7 @@ public class Test {
         Database db = new Database("testDB", 2048, 20);
         String[] names = new String[4];
         String[] types = new String[4];
+        String[] indexes = new String[1];
         Object[] data = new Object[4];
         Object[] data2 = new Object[4];
 
@@ -19,14 +20,16 @@ public class Test {
             data2[i] = new Integer(i * 4);
         }
 
-        db.createTable("table1", names, types, "attri0");
+        indexes[0] = "attri0";
+
+        db.createTable("table1", names, types, indexes);
         Table table = db.getTable("table1");
         System.out.println(table.toString());
 
 
         table.insert(data);
         table.insert(data2);
-        Row row = table.select(data[0]);
+        Row row = table.select("attri0", data[0]);
         System.out.println(row);
 
 

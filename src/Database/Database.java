@@ -54,8 +54,8 @@ public class Database extends Prototype {
             return null;
         }
         // create file
-        Path filePath = Paths.get(path.toString(), tableName + ".table");
-        FileUtils.createFile(filePath.toString());
+//        Path filePath = Paths.get(path.toString(), tableName + ".table");
+//        FileUtils.createFile(filePath.toString());
 
         Table table = new Table(this, tableName, schema);
         this.tableInUse.put(tableName, table);
