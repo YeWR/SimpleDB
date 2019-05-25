@@ -29,7 +29,9 @@ public class Database extends Prototype {
         this.name = name;
 
         path = Paths.get("./data", name);
-        FileUtils.createDir(path.toString());
+        if(!FileUtils.fileExist(path.toString())) {
+            FileUtils.createDir(path.toString());
+        }
 
         tableInUse = new HashMap<String, Table>();
     }
