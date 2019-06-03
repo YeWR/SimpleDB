@@ -2,12 +2,8 @@ package Database;
 
 import BplusTree.*;
 import FileManager.FileManagerBase;
-import Utils.Bytes;
-import Utils.FileUtils;
-import Utils.IntegerComparator;
-import Utils.StringComparator;
-import serialization.IntegerSerDeser;
-import serialization.StringSerDeser;
+import Utils.*;
+import serialization.*;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -121,10 +117,28 @@ public class Table{
                 e.printStackTrace();
             }
         }
-        else {
-            // TODO: other types;
-            return null;
+        else if(indexType.equals("Float")){
+            try {
+                return new BplusTree<Float>(temp.toString(), 4, 128, new FloatSerDeser(), new FloatComparator());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+        else if(indexType.equals("Double")){
+            try {
+                return new BplusTree<Double>(temp.toString(), 4, 128, new DoubleSerDeser(), new DoubleComparator());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else if(indexType.equals("Long")){
+            try {
+                return new BplusTree<Long>(temp.toString(), 4, 128, new LongSerDeser(), new LongComparator());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("Undefined Type in Table.newIndex");
         return null;
     }
 
