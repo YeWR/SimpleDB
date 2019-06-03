@@ -359,7 +359,7 @@ public class BplusNode<T>  {
 			for (int i = s_half_b ; i <= s_half_e ;i++) {
 				T lkey = getKey(i) ;
 				long ldata = getData(i) ;
-				newnode.insert(lkey, ldata) ;				
+				newnode.insert(lkey, ldata) ;
 			}
 			
 			T promotedkey = getKey(s_half_b) ;
@@ -618,8 +618,13 @@ public class BplusNode<T>  {
 		
 		return data.get(index) ;
 	}
-	
-	
+
+	public ArrayList<Long> getData() {
+		ArrayList<Long> res = new ArrayList<Long>();
+        res.addAll(this.data);
+        return res;
+	}
+
 	private void removeData(int index) {
 		
 		data.remove(index) ;

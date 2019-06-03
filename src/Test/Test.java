@@ -1,9 +1,8 @@
 package Test;
 
-import BplusTree.*;
-import Database.*;
-import Utils.Bytes;
-import javafx.scene.control.Tab;
+import Database.Database;
+import Database.Row;
+import Database.Table;
 
 public class Test {
 
@@ -65,12 +64,12 @@ public class Test {
         Database db = new Database("testDB", 2048, 20);//
 //        deleteDB(db);
         Table table = createTable(db, "table1");
+        System.out.println(table.toString());
 //        deleteTable(db);
-        selectTest(table);
+//        selectTest(table);
 
-        updateTest(table);
+//        updateTest(table);
 //        deleteTable(db);
         deleteDB(db);
-
     }
 }

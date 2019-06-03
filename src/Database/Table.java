@@ -1,6 +1,6 @@
 package Database;
 
-import BplusTree.*;
+import BplusTree.BplusTree;
 import FileManager.FileManagerBase;
 import Utils.*;
 import serialization.*;
@@ -169,6 +169,23 @@ public class Table{
         return true;
     }
 
+    public Row[] selectAll(){
+        long[] position = this.trees.get(this.schema.primaryKey()).traverse();
+        if(position == null || position.length == 0){
+            return null;
+        }
+
+        Row[] rows = new Row[position.length];
+
+        Path dataPath = Paths.get(this.path.toString(), name + ".db");
+
+        for (int i = 0; i < position.length; ++i){
+            RowDisk rowDisk = new RowDisk(dataPath.toString(), Prototype.BLOCK_SIZE, Prototype.INFO_SIZE);
+            rows[i] = new Row(this, (int) position[i], rowDisk);
+        }
+        return rows;
+    }
+
     /**
      * TODO: add condition
      * @return
@@ -293,9 +310,13 @@ public class Table{
     }
 
     public String toString(){
-        String s = new String();
+        String s;
         s = "Table " + name + "\n";
         s += this.schema.toString();
+        Row[] rows = this.selectAll();
+        for (Row row : rows){
+            s += row.toString();
+        }
         return s;
     }
 }

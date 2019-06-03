@@ -4,6 +4,7 @@ import serialization.SerDeserializer;
 
 import java.io.*;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Comparator;
 
 //import com.mj.db.serialization.SerDeserializer;
@@ -256,7 +257,40 @@ public class BplusTree<T> {
 		return true ;
 	}
 	
-	
+	public long[] traverse(){
+		if (root == null){
+			System.out.println("Root is null.");
+			return null;
+		}
+
+		ArrayList<Long> values;
+		if(root.isLeaf()){
+			values = root.getData();
+		}
+		else {
+			values = new ArrayList<>();
+			ArrayDeque<Integer> queue = new ArrayDeque<>();
+
+			queue.addAll(root.getChildren());
+			Integer current = null;
+			while (!queue.isEmpty() && (current = queue.poll()) != null){
+				BplusNode<T> cNode = null;
+				try {
+					cNode = readFromDisk(current);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				ArrayList<Long> curVals = cNode.getData();
+				values.addAll(curVals);
+				queue.addAll(cNode.getChildren()) ;
+			}
+		}
+		long[] ans = new long[values.size()];
+		for (int i = 0; i < values.size(); ++i){
+			ans[i] = values.get(i);
+		}
+		return ans;
+	}
 	
 	public void printTree() throws IOException {
 		

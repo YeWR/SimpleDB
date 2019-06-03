@@ -14,6 +14,7 @@ public class Schema {
 
     private ArrayList<String> names;
     private ArrayList<String> types;
+    // indexes[0] -> primary key
     private ArrayList<Integer> indexes;
 
     /**
@@ -150,6 +151,10 @@ public class Schema {
 
     public ArrayList<Integer> getIndexes(){
         return this.indexes;
+    }
+
+    public String primaryKey(){
+        return this.name(this.indexes.get(0));
     }
 
     public String toString(){
