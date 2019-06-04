@@ -157,6 +157,10 @@ public class Schema {
         return this.name(this.indexes.get(0));
     }
 
+    public int primaryKeyPos(){
+        return this.indexes.get(0);
+    }
+
     public boolean hasAttributes(ArrayList<String> atts){
         for(String att : atts){
             if(!this.names.contains(att)){

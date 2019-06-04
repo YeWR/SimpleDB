@@ -35,4 +35,29 @@ public class Utils {
         }
         return ans;
     }
+
+    public static Object stringToObject(String cnt, String type){
+        Object obj;
+        switch (type){
+            case "Int":
+                obj = new Integer(cnt);
+                break;
+            case "Long":
+                obj = new Long(cnt);
+                break;
+            case "Float":
+                obj = new Float(cnt);
+                break;
+            case "Double":
+                obj = new Double(cnt);
+                break;
+            case "String":
+                obj = cnt;
+                break;
+            default:
+                obj = null;
+                break;
+        }
+        return obj;
+    }
 }

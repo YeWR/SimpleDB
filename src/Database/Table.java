@@ -292,9 +292,9 @@ public class Table{
 //                break;
 //            }
 //        }
-        String idName = this.schema.name(0);
+        String idName = this.schema.primaryKey();
         BplusTree tree = this.trees.get(idName);
-        Object value = objs[0];
+        Object value = objs[this.schema.primaryKeyPos()];
         int position = (int) tree.find(value);
         if(position != 0){
             return false;

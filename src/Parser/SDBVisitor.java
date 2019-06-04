@@ -141,6 +141,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             String primaryType = "Int";
             names.add(0, primaryKey);
             types.add(0, primaryType);
+            indexes.add(0, primaryKey);
         }
         this.db.createTable(tableName, Utils.toStrings(names), Utils.toStrings(types), Utils.toStrings(indexes));
 
@@ -302,6 +303,61 @@ public class SDBVisitor extends SQLiteBaseVisitor {
         // TODO: server + cline
         System.out.println(string);
     }
+
+    /*
+     * insert
+     */
+    public Object visitInsert_stmt(SQLiteParser.Insert_stmtContext ctx){
+        if(this.db == null){
+            System.out.println("database not set!");
+            return null;
+        }
+        String tableName = ctx.getChild(2).getText();
+
+        // check table exist
+        if(!this.db.tableIsExist(tableName)){
+            System.out.println("table " + tableName + " not exists!");
+            // TODO: process
+            return null;
+        }
+        Table table = this.db.getTable(tableName);
+        String[] types = table.types();
+
+        // insert into table values (...)
+        if(ctx.getChild(3).getText().toLowerCase().equals("values")){
+            int index = 0;
+            ArrayList<Object> atts = new ArrayList<>();
+            for (int i = 4; i < ctx.children.size(); ++i){
+                ParseTree child = ctx.getChild(i);
+                if(child.getClass() == SQLiteParser.ExprContext.class){
+                    String text = child.getText();
+                    if(text.charAt(0) == '\''){
+                        text = text.substring(1, text.length() - 1);
+                    }
+                    Object cnt = Utils.stringToObject(text, types[index]);
+                    atts.add(cnt);
+
+                    index += 1;
+                }
+            }
+
+            // null
+            for (int i = index; i < types.length; ++i){
+                Object cnt = Utils.stringToObject(null, types[i]);
+            }
+
+            // insert
+            table.insert(atts.toArray());
+            System.out.println(table);
+        }
+        // insert into table(attris...) values (...)
+        else{
+
+        }
+
+        return null;
+    }
+
 }
 
 class ColumnType{

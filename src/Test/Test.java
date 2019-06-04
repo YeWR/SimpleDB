@@ -23,8 +23,8 @@ public class Test {
 
 
         Table table = db.createTable(tableName, names, types, indexes);
-        table.insert(data);
-        table.insert(data2);
+//        table.insert(data);
+//        table.insert(data2);
 
         return table;
     }
@@ -42,7 +42,7 @@ public class Test {
         }
         data[2] = "123";
 
-        table.update("attri0", "0", data);
+//        table.update("attri0", "0", data);
         Row row = table.select("attri0", "0");
         System.out.println(row.toString());
     }
