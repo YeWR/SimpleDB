@@ -45,6 +45,13 @@ public class SQLiteBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitShow_table_stmt(SQLiteParser.Show_table_stmtContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitShow_databases_stmt(SQLiteParser.Show_databases_stmtContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}

@@ -77,10 +77,15 @@ sql_stmt
                                       | select_stmt
                                       | show_database_stmt
                                       | show_databases_stmt
+                                      | show_table_stmt
                                       | update_stmt
                                       | update_stmt_limited
                                       | use_database_stmt
                                       | vacuum_stmt )
+ ;
+
+show_table_stmt
+ : K_SHOW K_TABLE table_name
  ;
 
 show_databases_stmt

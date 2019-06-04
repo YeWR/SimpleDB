@@ -212,6 +212,21 @@ public class SDBVisitor extends SQLiteBaseVisitor {
     }
 
     /*
+     * show table
+     */
+    public Object visitShow_table_stmt(SQLiteParser.Show_table_stmtContext ctx){
+        if(this.db == null){
+            System.out.println("database not set!");
+            return null;
+        }
+
+        String tableName = ctx.getChild(2).getText();
+        out(this.db.getTable(tableName).show());
+
+        return null;
+    }
+
+    /*
      * select
      */
     public Object visitSelect_core(SQLiteParser.Select_coreContext ctx){

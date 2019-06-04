@@ -35,6 +35,12 @@ public interface SQLiteVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSql_stmt(SQLiteParser.Sql_stmtContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link SQLiteParser#show_table_stmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitShow_table_stmt(SQLiteParser.Show_table_stmtContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link SQLiteParser#show_databases_stmt}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

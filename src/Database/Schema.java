@@ -166,22 +166,40 @@ public class Schema {
         return true;
     }
 
-    public String toString(){
-        String s = new String();
-        s += "--------------------------------------------------------------------\n";
+    public String show(){
+        StringBuilder s = new StringBuilder("");
         for (int i = 0; i < this.columns(); ++i){
-            s += " | ";
-            s += this.names.get(i);
+            s.append("\t|\t");
+            s.append(this.names.get(i));
+            s.append(":(").append(this.types.get(i)).append(")");
             int id = this.indexes.indexOf(i);
             if(id == 0){
-                s += "(*)";
+                s.append("(*)");
             }
             else if(id != -1){
-                s += "(+)";
+                s.append("(+)");
             }
         }
-        s += " | \n";
-        s += "--------------------------------------------------------------------\n";
-        return s;
+        s.append("\t|");
+        return s.toString();
+    }
+
+    public String toString(){
+        StringBuilder s = new StringBuilder();
+        s.append("--------------------------------------------------------------------\n");
+        for (int i = 0; i < this.columns(); ++i){
+            s.append("\t|\t");
+            s.append(this.names.get(i));
+            int id = this.indexes.indexOf(i);
+            if(id == 0){
+                s.append("(*)");
+            }
+            else if(id != -1){
+                s.append("(+)");
+            }
+        }
+        s.append("\t|\n");
+        s.append("--------------------------------------------------------------------\n");
+        return s.toString();
     }
 }

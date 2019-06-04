@@ -47,10 +47,10 @@ public class Row {
     public String toString(){
         String s = new String();
         for (int i = 0; i < this.data.length; ++i){
-            s += " | ";
+            s += "\t|\t";
             s += this.data[i].toString();
         }
-        s += " | \n";
+        s += "\t|\n";
         return s;
     }
 }

@@ -63,6 +63,18 @@ public class SQLiteBaseListener implements SQLiteListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterShow_table_stmt(SQLiteParser.Show_table_stmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitShow_table_stmt(SQLiteParser.Show_table_stmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterShow_databases_stmt(SQLiteParser.Show_databases_stmtContext ctx) { }
 	/**
 	 * {@inheritDoc}

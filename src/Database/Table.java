@@ -323,16 +323,20 @@ public class Table{
         }
     }
 
+    public String show(){
+        return this.schema.show();
+    }
+
     public String toString(){
-        String s;
-        s = "Table " + name + "\n";
-        s += this.schema.toString();
+        StringBuilder s;
+        s = new StringBuilder("Table " + name + "\n");
+        s.append(this.schema.toString());
         Row[] rows = this.selectAll();
         if(rows != null) {
             for (Row row : rows) {
-                s += row.toString();
+                s.append(row.toString());
             }
         }
-        return s;
+        return s.toString();
     }
 }
