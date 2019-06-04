@@ -2,7 +2,6 @@ package Utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class FileUtils {
@@ -85,6 +84,11 @@ public class FileUtils {
         }
         // 目录此时为空，可以删除
         return dir.delete();
+    }
+
+    public static String[] showDir(String dirName){
+        File dir = new File(dirName);
+        return dir.list();
     }
 
 

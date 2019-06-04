@@ -63,6 +63,18 @@ public class SQLiteBaseListener implements SQLiteListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterShow_databases_stmt(SQLiteParser.Show_databases_stmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitShow_databases_stmt(SQLiteParser.Show_databases_stmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterShow_database_stmt(SQLiteParser.Show_database_stmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -94,6 +106,18 @@ public class SQLiteBaseListener implements SQLiteListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitDrop_database_stmt(SQLiteParser.Drop_database_stmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUse_database_stmt(SQLiteParser.Use_database_stmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUse_database_stmt(SQLiteParser.Use_database_stmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

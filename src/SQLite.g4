@@ -76,9 +76,15 @@ sql_stmt
                                       | simple_select_stmt
                                       | select_stmt
                                       | show_database_stmt
+                                      | show_databases_stmt
                                       | update_stmt
                                       | update_stmt_limited
+                                      | use_database_stmt
                                       | vacuum_stmt )
+ ;
+
+show_databases_stmt
+ : K_SHOW K_DATABASES
  ;
 
 show_database_stmt
@@ -91,6 +97,10 @@ create_database_stmt
 
 drop_database_stmt
  : K_DROP K_DATABASE database_name
+ ;
+
+use_database_stmt
+ : K_USE K_DATABASE database_name
  ;
 
 alter_table_stmt
@@ -524,6 +534,7 @@ keyword
  | K_CURRENT_TIME
  | K_CURRENT_TIMESTAMP
  | K_DATABASE
+ | K_DATABASES
  | K_DEFAULT
  | K_DEFERRABLE
  | K_DEFERRED
@@ -609,6 +620,7 @@ keyword
  | K_UNION
  | K_UNIQUE
  | K_UPDATE
+ | K_USE
  | K_USING
  | K_VACUUM
  | K_VALUES
@@ -754,6 +766,7 @@ K_CURRENT_DATE : C U R R E N T '_' D A T E;
 K_CURRENT_TIME : C U R R E N T '_' T I M E;
 K_CURRENT_TIMESTAMP : C U R R E N T '_' T I M E S T A M P;
 K_DATABASE : D A T A B A S E;
+K_DATABASES: D A T A B A S E S;
 K_DEFAULT : D E F A U L T;
 K_DEFERRABLE : D E F E R R A B L E;
 K_DEFERRED : D E F E R R E D;
@@ -839,6 +852,7 @@ K_TRIGGER : T R I G G E R;
 K_UNION : U N I O N;
 K_UNIQUE : U N I Q U E;
 K_UPDATE : U P D A T E;
+K_USE: U S E;
 K_USING : U S I N G;
 K_VACUUM : V A C U U M;
 K_VALUES : V A L U E S;

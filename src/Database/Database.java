@@ -9,6 +9,7 @@ import java.util.Map;
 
 import static Utils.FileUtils.deleteDir;
 import static Utils.FileUtils.fileExist;
+import static Utils.FileUtils.showDir;
 
 public class Database extends Prototype {
     public static final int INT = 1;
@@ -83,6 +84,23 @@ public class Database extends Prototype {
     public boolean tableIsExist(String tableName) {
         Path filePath = Paths.get(path.toString(), tableName + ".table");
         return FileUtils.fileExist(filePath.toString());
+    }
+
+    public String showTables(){
+        String[] tables = showDir(this.path.toString());
+        String cnt;
+        if(tables.length == 0){
+            cnt = "No tables in " + this.name;
+            return cnt;
+        }
+
+        cnt = "All tables in " + this.name + ": \n------------------------------\n";
+        for (String table : tables){
+            cnt += table;
+            cnt += "\n";
+        }
+        cnt += "------------------------------";
+        return cnt;
     }
 
     public void close(){
@@ -198,5 +216,23 @@ public class Database extends Prototype {
     public static boolean existDB(String dbName){
         Path p = Paths.get("./data", dbName);
         return fileExist(p.toString());
+    }
+
+    public static String showAllDB(){
+        Path p = Paths.get("./data");
+        String[] dbs = showDir(p.toString());
+        String cnt;
+
+        if(dbs.length == 0){
+            cnt = "No Database!";
+            return cnt;
+        }
+        cnt = "All Database: \n------------------------------\n";
+        for (String db : dbs){
+            cnt += db;
+            cnt += "\n";
+        }
+        cnt += "------------------------------";
+        return cnt;
     }
 }

@@ -9,6 +9,8 @@ import java.util.HashMap;
 
 public class SDBVisitor extends SQLiteBaseVisitor {
 
+    private final static int BLOCKSIZE = 2048;
+    private final static int INFOSIZE = 20;
     private HashMap<String, Database> maps;
     private Database db;
 
@@ -17,24 +19,93 @@ public class SDBVisitor extends SQLiteBaseVisitor {
         this.maps = new HashMap<String, Database>();
     }
 
+    public Database getDatabase(String dbName){
+        if(this.maps.containsKey(dbName)){
+            return this.maps.get(dbName);
+        }
+        else {
+            return new Database(dbName, BLOCKSIZE, INFOSIZE);
+        }
+    }
+
     public void setDatabase(String dbName) {
         // check db exist
         if(!Database.existDB(dbName)){
             System.out.println("DB " + dbName + " not exists!");
+            return;
         }
 
         if(this.maps.containsKey(dbName)){
             this.db = this.maps.get(dbName);
         }
         else {
-            db = new Database(dbName, 2048, 20);
+            db = new Database(dbName, BLOCKSIZE, INFOSIZE);
             maps.put(dbName, db);
         }
     }
 
-    public Object visitSql_stmt(SQLiteParser.Sql_stmtContext ctx){
-        return visitChildren(ctx);
+    /*
+     * create database
+     */
+    public Object visitCreate_database_stmt(SQLiteParser.Create_database_stmtContext ctx) {
+        ParseTree dbNode = ctx.getChild(2);
+        if(Database.existDB(dbNode.getText())){
+            System.out.println("DB exists!");
+            return null;
+        }
+        Database db = new Database(dbNode.getText(), BLOCKSIZE, INFOSIZE);
+        this.maps.put(dbNode.getText(), db);
+
+        return null;
     }
+
+    /*
+     * use database
+     */
+    public Object visitUse_database_stmt(SQLiteParser.Use_database_stmtContext ctx) {
+        ParseTree dbNode = ctx.getChild(2);
+        this.setDatabase(dbNode.getText());
+        return null;
+    }
+
+    /*
+     * drop database
+     */
+    public Object visitDrop_database_stmt(SQLiteParser.Drop_database_stmtContext ctx){
+        ParseTree dbNode = ctx.getChild(2);
+        String dbName = dbNode.getText();
+        if(this.maps.containsKey(dbName)){
+            if(this.db.getName().equals(dbName)){
+                this.db = null;
+            }
+            Database db = this.maps.remove(dbName);
+            db.deleteDB();
+        }
+        else {
+            Database db = new Database(dbName, BLOCKSIZE, INFOSIZE);
+            db.deleteDB();
+        }
+        return null;
+    }
+
+    /*
+     * show database
+     */
+    public Object visitShow_databases_stmt(SQLiteParser.Show_databases_stmtContext ctx) {
+        String cnt = Database.showAllDB();
+        out(cnt);
+        return null;
+    }
+
+    public Object visitShow_database_stmt(SQLiteParser.Show_database_stmtContext ctx){
+        ParseTree dbNode = ctx.getChild(2);
+        Database db = getDatabase(dbNode.getText());
+
+        String cnt = db.showTables();
+        out(cnt);
+        return null;
+    }
+
 
     /*
      * select
@@ -104,4 +175,8 @@ public class SDBVisitor extends SQLiteBaseVisitor {
         return null;
     }
 
+    public void out(String string){
+        // TODO: server + cline
+        System.out.println(string);
+    }
 }
