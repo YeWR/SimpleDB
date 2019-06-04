@@ -1,5 +1,5 @@
+// Generated from C:/Users/Quicker/Documents/THU/curriculum/major/Database/homework/Final/SimpleDB/src\SQLite.g4 by ANTLR 4.7.2
 package Parser;
-// Generated from C:/Users/Quicker/Documents/THU/curriculum/major/Database/homework/����ҵ/SimpleDB/src\SQLite.g4 by ANTLR 4.7.2
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.atn.ATN;
 import org.antlr.v4.runtime.atn.ATNDeserializer;
@@ -168,8 +168,8 @@ public class SQLiteLexer extends Lexer {
 	@Override
 	public String getSerializedATN() { return _serializedATN; }
 
-//	@Override
-//	public String[] getChannelNames() { return channelNames; }
+	@Override
+	public String[] getChannelNames() { return channelNames; }
 
 	@Override
 	public String[] getModeNames() { return modeNames; }

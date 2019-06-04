@@ -1,5 +1,5 @@
-package Parser;// Generated from C:/Users/Quicker/Documents/THU/curriculum/major/Database/homework/����ҵ/SimpleDB/src\SQLite.g4 by ANTLR 4.7.2
-
+// Generated from C:/Users/Quicker/Documents/THU/curriculum/major/Database/homework/Final/SimpleDB/src\SQLite.g4 by ANTLR 4.7.2
+package Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;

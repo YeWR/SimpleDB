@@ -1,7 +1,6 @@
 package Database;
 
 import Utils.FileUtils;
-import javafx.scene.control.Tab;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -9,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static Utils.FileUtils.deleteDir;
+import static Utils.FileUtils.fileExist;
 
 public class Database extends Prototype {
     public static final int INT = 1;
@@ -78,6 +78,32 @@ public class Database extends Prototype {
 
     public Path getPath(){
         return this.path;
+    }
+
+    public boolean tableIsExist(String tableName) {
+        Path filePath = Paths.get(path.toString(), tableName + ".table");
+        return FileUtils.fileExist(filePath.toString());
+    }
+
+    public void close(){
+        if(this.tableInUse == null){
+            return;
+        }
+        for (Map.Entry<String, Table> entry : this.tableInUse.entrySet()){
+            entry.getValue().close();
+        }
+    }
+
+    public void deleteDB(){
+        if(this.tableInUse != null){
+            for (Map.Entry<String, Table> entry : this.tableInUse.entrySet()){
+                entry.getValue().deleteTable();
+            }
+        }
+        boolean over = deleteDir(this.path.toString());
+        if(!over){
+            System.out.println("Delete Database Failed!");
+        }
     }
 
     public static int typeToInt(String type){
@@ -169,29 +195,8 @@ public class Database extends Prototype {
         }
     }
 
-    public boolean tableIsExist(String tableName) {
-        Path filePath = Paths.get(path.toString(), tableName + ".table");
-        return FileUtils.fileExist(filePath.toString());
-    }
-
-    public void close(){
-        if(this.tableInUse == null){
-            return;
-        }
-        for (Map.Entry<String, Table> entry : this.tableInUse.entrySet()){
-            entry.getValue().close();
-        }
-    }
-
-    public void deleteDB(){
-        if(this.tableInUse != null){
-            for (Map.Entry<String, Table> entry : this.tableInUse.entrySet()){
-                entry.getValue().deleteTable();
-            }
-        }
-        boolean over = deleteDir(this.path.toString());
-        if(!over){
-            System.out.println("Delete Database Failed!");
-        }
+    public static boolean existDB(String dbName){
+        Path p = Paths.get("./data", dbName);
+        return fileExist(p.toString());
     }
 }

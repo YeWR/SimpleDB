@@ -292,6 +292,10 @@ public class Table{
         return ans;
     }
 
+    public boolean hasAttributes(ArrayList<String> atts){
+        return this.schema.hasAttributes(atts);
+    }
+
     public void close(){
         if(trees == null){
             return;
