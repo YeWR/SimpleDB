@@ -2,6 +2,7 @@ package Parser;
 
 import Database.Database;
 import Database.Table;
+import Utils.Utils;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             this.db = this.maps.get(dbName);
         }
         else {
-            db = new Database(dbName, BLOCKSIZE, INFOSIZE);
+            this.db = new Database(dbName, BLOCKSIZE, INFOSIZE);
             maps.put(dbName, db);
         }
     }
@@ -106,11 +107,99 @@ public class SDBVisitor extends SQLiteBaseVisitor {
         return null;
     }
 
+    /*
+     * create table
+     */
+    public Object visitCreate_table_stmt(SQLiteParser.Create_table_stmtContext ctx){
+        if(this.db == null){
+            System.out.println("database not set!");
+            return null;
+        }
+
+        String tableName = ctx.getChild(2).getText();
+        ArrayList<String> names = new ArrayList<>();
+        ArrayList<String> types = new ArrayList<>();
+        ArrayList<String> indexes = new ArrayList<>();
+
+        String primaryKey = "";
+
+        for (ParseTree tree : ctx.children){
+            if(tree.getClass() == SQLiteParser.Column_defContext.class){
+                ColumnType columnType = (ColumnType) visit(tree);
+                // not primary key
+                if(columnType.kind != 2){
+                    names.add(columnType.name);
+                    types.add(Database.classToType(columnType.type));
+                }
+                else {
+                    indexes.add(columnType.name);
+                }
+
+            }
+        }
+        this.db.createTable(tableName, Utils.toStrings(names), Utils.toStrings(types), Utils.toStrings(indexes));
+
+        return null;
+    }
+
+    public Object visitColumn_def(SQLiteParser.Column_defContext ctx){
+        String name = ctx.getChild(0).getText();
+        ColumnType type = (ColumnType) visitChildren(ctx);
+        if(type.kind == 2 && name.toLowerCase().equals("primary")){
+            //
+        }
+        else {
+            type.name = name;
+        }
+
+        return type;
+    }
+
+    public Object visitType_name(SQLiteParser.Type_nameContext ctx){
+        String type = ctx.getChild(0).getText();
+        int number = -1;
+        ParseTree nc1 = null, nc2 = null;
+
+        for (int i = 1; i < ctx.children.size(); ++i){
+            ParseTree child = ctx.getChild(i);
+            if(child.getClass() == SQLiteParser.Signed_numberContext.class){
+                number = Integer.valueOf(child.getText());
+            }
+            else if(child.getClass() == SQLiteParser.NameContext.class){
+                if(nc1 == null){
+                    nc1 = child;
+                }
+                else if(nc2 == null){
+                    nc2 = child;
+                }
+            }
+        }
+
+        ColumnType res = new ColumnType();
+        res.type = ColumnType.toType(type);
+        res.len = number;
+
+        // normal
+        if(nc1 == null && nc2 == null){
+            res.kind = 0;
+        }
+        // not null
+        else if(nc1.getText().toLowerCase().equals("not") && nc2.getText().toLowerCase().equals("null")) {
+            res.kind = 1;
+        }
+        else if(type.toLowerCase().equals("key")){
+            res.type = null;
+            res.kind = 2;
+            res.name = nc1.getText().split("\\(|\\)")[1];
+        }
+
+        return res;
+    }
+
 
     /*
      * select
      */
-
     public Object visitSelect_core(SQLiteParser.Select_coreContext ctx){
         if(this.db == null){
             System.out.println("database not set!");
@@ -178,5 +267,36 @@ public class SDBVisitor extends SQLiteBaseVisitor {
     public void out(String string){
         // TODO: server + cline
         System.out.println(string);
+    }
+}
+
+class ColumnType{
+    /**
+     * kind:
+     * 0 -> normal
+     * 1 -> not null
+     * 2 -> key id
+     */
+    public String name;
+    public int kind;
+    public Class type;
+    public int len;
+
+    static Class toType(String str){
+        String s = str.toLowerCase();
+        switch (s){
+            case "string":
+                return String.class;
+            case "int":
+                return Integer.class;
+            case "float":
+                return Float.class;
+            case "double":
+                return Double.class;
+            case "long":
+                return Long.class;
+            default:
+                return null;
+        }
     }
 }

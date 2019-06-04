@@ -43,6 +43,9 @@ public class Table{
         this.filePath = Paths.get(this.path.toString(), this.name + ".table");
         FileUtils.createFile(filePath.toString());
 
+        String dataPath = Paths.get(this.path.toString(), this.name + ".db").toString();
+        FileUtils.createFile(dataPath);
+
         this.initIndex();
         this.writeToFile();
     }
@@ -148,9 +151,9 @@ public class Table{
             return false;
         }
 
-        // check index
-        if(!checkSameIndex(data)){
-            System.out.println("There exists a row of same index!");
+        // check primary key
+        if(!checkPrimaryKey(data)){
+            System.out.println("There exists a row of same primary key!");
             return false;
         }
 
@@ -277,19 +280,26 @@ public class Table{
         return ans;
     }
 
-    private boolean checkSameIndex(Object[] objs){
-        boolean ans = true;
-        for(int id : this.schema.getIndexes()){
-            String idName = this.schema.name(id);
-            BplusTree tree = this.trees.get(idName);
-            Object value = objs[id];
-            int position = (int) tree.find(value);
-            if(position != 0){
-                ans = false;
-                break;
-            }
+    private boolean checkPrimaryKey(Object[] objs){
+//        boolean ans = true;
+//        for(int id : this.schema.getIndexes()){
+//            String idName = this.schema.name(id);
+//            BplusTree tree = this.trees.get(idName);
+//            Object value = objs[id];
+//            int position = (int) tree.find(value);
+//            if(position != 0){
+//                ans = false;
+//                break;
+//            }
+//        }
+        String idName = this.schema.name(0);
+        BplusTree tree = this.trees.get(idName);
+        Object value = objs[0];
+        int position = (int) tree.find(value);
+        if(position != 0){
+            return false;
         }
-        return ans;
+        return true;
     }
 
     public boolean hasAttributes(ArrayList<String> atts){
@@ -318,8 +328,10 @@ public class Table{
         s = "Table " + name + "\n";
         s += this.schema.toString();
         Row[] rows = this.selectAll();
-        for (Row row : rows){
-            s += row.toString();
+        if(rows != null) {
+            for (Row row : rows) {
+                s += row.toString();
+            }
         }
         return s;
     }

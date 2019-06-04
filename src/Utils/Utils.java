@@ -1,5 +1,7 @@
 package Utils;
 
+import java.util.ArrayList;
+
 public class Utils {
     public static Object byteToObject(byte[] bytes, String type){
         Object obj;
@@ -24,5 +26,13 @@ public class Utils {
                 break;
         }
         return obj;
+    }
+
+    public static String[] toStrings(ArrayList<String> arrayList){
+        String[] ans = new String[arrayList.size()];
+        for (int i = 0; i < arrayList.size(); ++i){
+            ans[i] = arrayList.get(i);
+        }
+        return ans;
     }
 }

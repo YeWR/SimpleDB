@@ -172,8 +172,12 @@ public class Schema {
         for (int i = 0; i < this.columns(); ++i){
             s += " | ";
             s += this.names.get(i);
-            if(this.indexes.indexOf(i) != -1){
+            int id = this.indexes.indexOf(i);
+            if(id == 0){
                 s += "(*)";
+            }
+            else if(id != -1){
+                s += "(+)";
             }
         }
         s += " | \n";

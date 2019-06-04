@@ -50,7 +50,7 @@ public class Database extends Prototype {
         return table;
     }
 
-    public Table createTable(String tableName, String[] columnNames, String[] columnTypes, String indexNames[]){
+    public Table createTable(String tableName, String[] columnNames, String[] columnTypes, String[] indexNames){
         Schema schema = new Schema(columnNames, columnTypes, indexNames);
         return createTable(tableName, schema);
     }
@@ -155,6 +155,27 @@ public class Database extends Prototype {
                 return String.class;
             default:
                 return null;
+        }
+    }
+
+    public static String classToType(Class cls){
+        if(cls == Integer.class){
+            return "Int";
+        }
+        else if(cls == Long.class){
+            return "Long";
+        }
+        else if(cls == Float.class){
+            return "Float";
+        }
+        else if(cls == Double.class){
+            return "Double";
+        }
+        else if(cls == String.class){
+            return "String";
+        }
+        else {
+            return null;
         }
     }
 
