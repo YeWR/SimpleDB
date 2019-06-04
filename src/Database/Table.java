@@ -145,6 +145,29 @@ public class Table{
         return null;
     }
 
+    public boolean insert(ArrayList<String> atts, ArrayList<Object> values){
+        assert atts.size() == values.size();
+
+        Object[] data = new Object[this.schema.columns()];
+        // TODO: null
+        for (int i = 0; i < data.length; ++i){
+            data[i] = null;
+        }
+
+        for (int i = 0; i < atts.size(); ++i){
+            int index = this.schema.namePos(atts.get(i));
+            if(index == -1){
+                System.out.println("attribute " + atts.get(i) + " not exists in table " + this.name);
+                return false;
+            }
+            else {
+                data[index] = values.get(i);
+            }
+        }
+
+        return this.insert(data);
+    }
+
     public boolean insert(Object[] data){
         if(!check(data)){
             System.out.println("type error in insert");
@@ -265,6 +288,10 @@ public class Table{
             ts[i] = this.schema.type(i);
         }
         return ts;
+    }
+
+    public String getType(String name){
+        return this.schema.getType(name);
     }
 
     private boolean check(Object[] objs){

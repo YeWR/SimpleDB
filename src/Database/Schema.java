@@ -149,6 +149,19 @@ public class Schema {
         return this.names.size();
     }
 
+    public int namePos(String name){
+        return this.names.indexOf(name);
+    }
+
+    public String getType(String name){
+        int pos = this.namePos(name);
+        if(pos == -1){
+            return null;
+        }
+
+        return this.type(pos);
+    }
+
     public ArrayList<Integer> getIndexes(){
         return this.indexes;
     }

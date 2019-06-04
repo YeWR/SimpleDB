@@ -326,7 +326,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
         // insert into table values (...)
         if(ctx.getChild(3).getText().toLowerCase().equals("values")){
             int index = 0;
-            ArrayList<Object> atts = new ArrayList<>();
+            ArrayList<Object> values = new ArrayList<>();
             for (int i = 4; i < ctx.children.size(); ++i){
                 ParseTree child = ctx.getChild(i);
                 if(child.getClass() == SQLiteParser.ExprContext.class){
@@ -335,26 +335,49 @@ public class SDBVisitor extends SQLiteBaseVisitor {
                         text = text.substring(1, text.length() - 1);
                     }
                     Object cnt = Utils.stringToObject(text, types[index]);
-                    atts.add(cnt);
+                    values.add(cnt);
 
                     index += 1;
                 }
             }
 
-            // null
+            // TODO: null
             for (int i = index; i < types.length; ++i){
                 Object cnt = Utils.stringToObject(null, types[i]);
             }
 
             // insert
-            table.insert(atts.toArray());
-            System.out.println(table);
+            table.insert(values.toArray());
         }
         // insert into table(attris...) values (...)
         else{
+            int index = 0;
+            ArrayList<String> atts = new ArrayList<>();
+            ArrayList<Object> values = new ArrayList<>();
 
+            for (int i = 4; i < ctx.children.size(); ++i){
+                ParseTree child = ctx.getChild(i);
+                if(child.getClass() == SQLiteParser.Column_nameContext.class){
+                    atts.add(child.getText());
+                }
+                else if(child.getClass() == SQLiteParser.ExprContext.class){
+                    String text = child.getText();
+                    if(text.charAt(0) == '\''){
+                        text = text.substring(1, text.length() - 1);
+                    }
+
+                    Object cnt = Utils.stringToObject(text, table.getType(atts.get(index)));
+                    values.add(cnt);
+
+                    index += 1;
+                }
+            }
+
+            // insert
+            table.insert(atts, values);
         }
 
+        System.out.println(table);
         return null;
     }
 
