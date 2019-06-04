@@ -121,8 +121,6 @@ public class SDBVisitor extends SQLiteBaseVisitor {
         ArrayList<String> types = new ArrayList<>();
         ArrayList<String> indexes = new ArrayList<>();
 
-        String primaryKey = "";
-
         for (ParseTree tree : ctx.children){
             if(tree.getClass() == SQLiteParser.Column_defContext.class){
                 ColumnType columnType = (ColumnType) visit(tree);
@@ -136,6 +134,13 @@ public class SDBVisitor extends SQLiteBaseVisitor {
                 }
 
             }
+        }
+        if(indexes.size() == 0){
+            //TODO: not same
+            String primaryKey = tableName + "_ID";
+            String primaryType = "Int";
+            names.add(0, primaryKey);
+            types.add(0, primaryType);
         }
         this.db.createTable(tableName, Utils.toStrings(names), Utils.toStrings(types), Utils.toStrings(indexes));
 
