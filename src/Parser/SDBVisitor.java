@@ -196,6 +196,20 @@ public class SDBVisitor extends SQLiteBaseVisitor {
         return res;
     }
 
+    /*
+     * drop table
+     */
+    public Object visitDrop_table_stmt(SQLiteParser.Drop_table_stmtContext ctx){
+        if(this.db == null){
+            System.out.println("database not set!");
+            return null;
+        }
+
+        String tableName = ctx.getChild(2).getText();
+        this.db.deleteTable(tableName);
+
+        return null;
+    }
 
     /*
      * select

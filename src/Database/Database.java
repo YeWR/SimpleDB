@@ -7,9 +7,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-import static Utils.FileUtils.deleteDir;
-import static Utils.FileUtils.fileExist;
-import static Utils.FileUtils.showDir;
+import static Utils.FileUtils.*;
 
 public class Database extends Prototype {
     public static final int INT = 1;
@@ -82,7 +80,7 @@ public class Database extends Prototype {
     }
 
     public boolean tableIsExist(String tableName) {
-        Path filePath = Paths.get(path.toString(), tableName + ".table");
+        Path filePath = Paths.get(path.toString(), tableName);
         return FileUtils.fileExist(filePath.toString());
     }
 
@@ -109,6 +107,16 @@ public class Database extends Prototype {
         }
         for (Map.Entry<String, Table> entry : this.tableInUse.entrySet()){
             entry.getValue().close();
+        }
+    }
+
+    public void deleteTable(String tableName){
+        if(tableIsExist(tableName)){
+            Table table = this.getTable(tableName);
+            table.deleteTable();
+        }
+        else {
+            System.out.println("Table " + tableName + " not exists!");
         }
     }
 
