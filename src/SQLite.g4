@@ -52,6 +52,7 @@ sql_stmt
                                       | begin_stmt
                                       | commit_stmt
                                       | compound_select_stmt
+                                      | create_database_stmt
                                       | create_index_stmt
                                       | create_table_stmt
                                       | create_trigger_stmt
@@ -60,6 +61,7 @@ sql_stmt
                                       | delete_stmt
                                       | delete_stmt_limited
                                       | detach_stmt
+                                      | drop_database_stmt
                                       | drop_index_stmt
                                       | drop_table_stmt
                                       | drop_trigger_stmt
@@ -73,9 +75,22 @@ sql_stmt
                                       | savepoint_stmt
                                       | simple_select_stmt
                                       | select_stmt
+                                      | show_database_stmt
                                       | update_stmt
                                       | update_stmt_limited
                                       | vacuum_stmt )
+ ;
+
+show_database_stmt
+ : K_SHOW K_DATABASE database_name
+ ;
+
+create_database_stmt
+ : K_CREATE K_DATABASE database_name
+ ;
+
+drop_database_stmt
+ : K_DROP K_DATABASE database_name
  ;
 
 alter_table_stmt
@@ -583,6 +598,7 @@ keyword
  | K_SAVEPOINT
  | K_SELECT
  | K_SET
+ | K_SHOW
  | K_TABLE
  | K_TEMP
  | K_TEMPORARY
@@ -812,6 +828,7 @@ K_ROW : R O W;
 K_SAVEPOINT : S A V E P O I N T;
 K_SELECT : S E L E C T;
 K_SET : S E T;
+K_SHOW: S H O W;
 K_TABLE : T A B L E;
 K_TEMP : T E M P;
 K_TEMPORARY : T E M P O R A R Y;

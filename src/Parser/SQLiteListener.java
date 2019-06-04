@@ -48,6 +48,36 @@ public interface SQLiteListener extends ParseTreeListener {
 	 */
 	void exitSql_stmt(SQLiteParser.Sql_stmtContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link SQLiteParser#show_database_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterShow_database_stmt(SQLiteParser.Show_database_stmtContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SQLiteParser#show_database_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitShow_database_stmt(SQLiteParser.Show_database_stmtContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SQLiteParser#create_database_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterCreate_database_stmt(SQLiteParser.Create_database_stmtContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SQLiteParser#create_database_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitCreate_database_stmt(SQLiteParser.Create_database_stmtContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SQLiteParser#drop_database_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterDrop_database_stmt(SQLiteParser.Drop_database_stmtContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SQLiteParser#drop_database_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitDrop_database_stmt(SQLiteParser.Drop_database_stmtContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link SQLiteParser#alter_table_stmt}.
 	 * @param ctx the parse tree
 	 */
