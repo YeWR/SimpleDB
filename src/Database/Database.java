@@ -18,7 +18,7 @@ public class Database extends Prototype {
 
     public static final int INTSIZE = 4;
     public static final int LONGSIZE = 8;
-    public static final int FLOATSIZE = 8;
+    public static final int FLOATSIZE = 4;
     public static final int DOUBLESIZE = 8;
     public static final int STRINGSIZE = 256;
 

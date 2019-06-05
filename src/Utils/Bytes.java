@@ -15,12 +15,10 @@ public class Bytes {
             return Bytes.intToBytes((Integer) obj);
         }
         else if(obj.getClass() == Float.class){
-            // TODO
-            return null;
+            return Bytes.floatToBytes((Float) obj);
         }
         else if(obj.getClass() == Double.class){
-            // TODO
-            return null;
+            return Bytes.doubleToBytes((Double) obj);
         }
         else if(obj.getClass() == Long.class){
             return Bytes.longToBytes((Long) obj);
@@ -119,7 +117,7 @@ public class Bytes {
      * @param f
      * @return
      */
-    public static byte[] FloatToBytes(float f) {
+    public static byte[] floatToBytes(float f) {
 
         // 把float转换为byte[]
         int fbit = Float.floatToIntBits(f);

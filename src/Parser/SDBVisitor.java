@@ -54,7 +54,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             System.out.println("DB exists!");
             return null;
         }
-        Database db = new Database(dbNode.getText(), BLOCKSIZE, INFOSIZE);
+        Database db = new Database(dbNode.getText().toLowerCase(), BLOCKSIZE, INFOSIZE);
         this.maps.put(dbNode.getText(), db);
 
         return null;
@@ -65,7 +65,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
      */
     public Object visitUse_database_stmt(SQLiteParser.Use_database_stmtContext ctx) {
         ParseTree dbNode = ctx.getChild(2);
-        this.setDatabase(dbNode.getText());
+        this.setDatabase(dbNode.getText().toLowerCase());
         return null;
     }
 
@@ -74,7 +74,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
      */
     public Object visitDrop_database_stmt(SQLiteParser.Drop_database_stmtContext ctx){
         ParseTree dbNode = ctx.getChild(2);
-        String dbName = dbNode.getText();
+        String dbName = dbNode.getText().toLowerCase();
         if(this.maps.containsKey(dbName)){
             if(this.db.getName().equals(dbName)){
                 this.db = null;
@@ -116,7 +116,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             return null;
         }
 
-        String tableName = ctx.getChild(2).getText();
+        String tableName = ctx.getChild(2).getText().toLowerCase();
         ArrayList<String> names = new ArrayList<>();
         ArrayList<String> types = new ArrayList<>();
         ArrayList<String> indexes = new ArrayList<>();
@@ -136,7 +136,6 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             }
         }
         if(indexes.size() == 0){
-            //TODO: not same
             String primaryKey = tableName + "_ID";
             String primaryType = "Int";
             names.add(0, primaryKey);
@@ -149,9 +148,22 @@ public class SDBVisitor extends SQLiteBaseVisitor {
     }
 
     public Object visitColumn_def(SQLiteParser.Column_defContext ctx){
-        String name = ctx.getChild(0).getText();
-        ColumnType type = (ColumnType) visitChildren(ctx);
-        if(type.kind == 2 && name.toLowerCase().equals("primary")){
+        String name = ctx.getChild(0).getText().toLowerCase();
+        ColumnType type = null;
+
+        for (int i = 1; i < ctx.children.size(); ++i){
+            ParseTree child = ctx.getChild(i);
+            if(child.getClass() == SQLiteParser.Type_nameContext.class){
+                type = (ColumnType) visit(child);
+            }
+            else if(child.getClass() == SQLiteParser.Column_constraintContext.class){
+                if(child.getText().toLowerCase().equals("notnull")){
+                    type.kind = 1;
+                }
+            }
+        }
+
+        if(type.kind == 2 && name.equals("primary")){
             //
         }
         else {
@@ -196,7 +208,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
         else if(type.toLowerCase().equals("key")){
             res.type = null;
             res.kind = 2;
-            res.name = nc1.getText().split("\\(|\\)")[1];
+            res.name = nc1.getText().split("\\(|\\)")[1].toLowerCase();
         }
 
         return res;
@@ -228,7 +240,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
 
         String tableName = ctx.getChild(2).getText();
         out(this.db.getTable(tableName).show());
-        System.out.println(this.db.getTable(tableName));
+//        System.out.println(this.db.getTable(tableName));
 
         return null;
     }
@@ -244,6 +256,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
 
         ArrayList<ParseTree> attributesNode = new ArrayList<>();
         ParseTree tableNode = null;
+        ParseTree tableNode2 = null;
         ParseTree whereExpr = null;
         int type = 0;
 
@@ -291,19 +304,26 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             ArrayList<Integer> attsPos = table.attributesPos(atts);
 
             // where
-            String att = whereExpr.getChild(0).getText();
-            String relation = whereExpr.getChild(1).getText();
-            String value = whereExpr.getChild(2).getText();
-            if(value.charAt(0) == '\''){
-                value = value.substring(1, value.length() - 1);
-            }
-            Object cnt = Utils.stringToObject(value, table.getType(att));
+            if(whereExpr != null){
+                String att = whereExpr.getChild(0).getText();
+                String relation = whereExpr.getChild(1).getText();
+                String value = whereExpr.getChild(2).getText();
+                if(value.charAt(0) == '\''){
+                    value = value.substring(1, value.length() - 1);
+                }
+                Object cnt = Utils.stringToObject(value, table.getType(att));
 
-            ArrayList<Row> rows = table.select(att, relation, cnt);
-            this.out(table.out(attsPos) + Row.out(rows, attsPos));
+                ArrayList<Row> rows = table.select(att, relation, cnt);
+                this.out(table.out(attsPos) + Row.out(rows, attsPos));
+            }
+            // select all
+            else {
+                Row[] rows = table.selectAll();
+                this.out(table.out(attsPos) + Row.out(rows, attsPos));
+            }
         }
         else if(type == 2){
-            // TODO: join
+
         }
 
 
@@ -513,7 +533,7 @@ class ColumnType{
      * kind:
      * 0 -> normal
      * 1 -> not null
-     * 2 -> key id
+     * 2 -> primary key
      */
     public String name;
     public int kind;

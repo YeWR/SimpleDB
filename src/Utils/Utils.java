@@ -1,6 +1,8 @@
 package Utils;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Utils {
     public static Object byteToObject(byte[] bytes, String type){
@@ -59,5 +61,15 @@ public class Utils {
                 break;
         }
         return obj;
+    }
+
+    public static String replaceBlank(String str){
+        String dest = "";
+        if (str!=null) {
+            Pattern p = Pattern.compile("[\t\n]");
+            Matcher m = p.matcher(str);
+            dest = m.replaceAll(" ");
+        }
+        return dest;
     }
 }

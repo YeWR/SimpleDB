@@ -115,4 +115,15 @@ public class Row {
 
         return s.toString();
     }
+
+    public static String out(Row[] rows, ArrayList<Integer> positions){
+        StringBuilder s = new StringBuilder();
+        if(rows != null) {
+            for (Row row : rows) {
+                s.append(row.out(positions));
+            }
+        }
+
+        return s.toString();
+    }
 }
