@@ -2,6 +2,8 @@ package Database;
 
 import Utils.*;
 
+import java.util.ArrayList;
+
 public class Row {
     /**
      * abstract row in a table
@@ -57,5 +59,27 @@ public class Row {
         }
         s += "\t|\n";
         return s;
+    }
+
+    public static String toStrings(Row[] rows){
+        StringBuilder s = new StringBuilder();
+        if(rows != null) {
+            for (Row row : rows) {
+                s.append(row.toString());
+            }
+        }
+
+        return s.toString();
+    }
+
+    public static String toStrings(ArrayList<Row> rows){
+        StringBuilder s = new StringBuilder();
+        if(rows != null) {
+            for (Row row : rows) {
+                s.append(row.toString());
+            }
+        }
+
+        return s.toString();
     }
 }

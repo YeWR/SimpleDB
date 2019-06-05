@@ -199,6 +199,10 @@ public class Table{
         return true;
     }
 
+    /*
+     * select
+     */
+
     public Row[] selectAll(){
         long[] position = this.trees.get(this.schema.primaryKey()).traverse(null, null);
         if(position == null || position.length == 0){
@@ -216,10 +220,6 @@ public class Table{
         return rows;
     }
 
-    /**
-     * TODO: add condition
-     * @return
-     */
     public Row select(String idName, Object index){
         Row row = null;
         int position = (int) this.trees.get(idName).find(index);
@@ -231,6 +231,52 @@ public class Table{
         }
         return row;
     }
+
+    public ArrayList<Row> select(String att, String relation, Object data){
+        ArrayList<Row> rows = new ArrayList<Row>();
+        ArrayList keys = new ArrayList();
+        SqlCompare compare = new SqlCompare(relation, data, this.getType(att));
+        int attPos = this.schema.namePos(att);
+        Path dataPath = Paths.get(this.path.toString(), name + ".db");
+
+        if(this.trees.containsKey(att)){
+            BplusTree tree = this.trees.get(att);
+
+            long[] positions = tree.traverse(compare, keys);
+            if(positions == null || positions.length == 0){
+                return null;
+            }
+
+            for (long position : positions) {
+                RowDisk rowDisk = new RowDisk(dataPath.toString(), Prototype.BLOCK_SIZE, Prototype.INFO_SIZE);
+                rows.add(new Row(this, (int) position, rowDisk));
+            }
+        }
+        else {
+            BplusTree tree = this.trees.get(this.schema.primaryKey());
+
+            long[] positions = tree.traverse(null, keys);
+            if(positions == null || positions.length == 0){
+                return null;
+            }
+
+            for (long position : positions) {
+                RowDisk rowDisk = new RowDisk(dataPath.toString(), Prototype.BLOCK_SIZE, Prototype.INFO_SIZE);
+                Row row = new Row(this, (int) position, rowDisk);
+
+                // pick
+                if (row.compare(attPos, compare)) {
+                    rows.add(row);
+                }
+            }
+        }
+
+        return rows;
+    }
+
+    /*
+     * delete
+     */
 
     public void deleteAll(){
         Set<String> keys = this.trees.keySet();
@@ -260,16 +306,16 @@ public class Table{
             // the att is the index
             if(indexName.equals(att)){
                 ArrayList keys = new ArrayList();
-                long[] position = tree.traverse(compare, keys);
-                if(position == null || position.length == 0){
+                long[] positions = tree.traverse(compare, keys);
+                if(positions == null || positions.length == 0){
                     continue;
                 }
-                record = position.length;
+                record = positions.length;
 
                 // delete data
                 Path dataPath = Paths.get(this.path.toString(), name + ".db");
                 FileManagerBase deleteFm = new FileManagerBase(dataPath.toString(), Prototype.BLOCK_SIZE);
-                BlockDisk.delete(deleteFm, position);
+                BlockDisk.delete(deleteFm, positions);
                 try {
                     deleteFm.close();
                 } catch (IOException e) {
@@ -332,6 +378,10 @@ public class Table{
         // delete index
         tree.delete(index);
     }
+
+    /*
+     * update
+     */
 
     public void update(ArrayList<String> atts, ArrayList<Object> values, String att, String relation, Object data){
 
@@ -451,11 +501,7 @@ public class Table{
         s = new StringBuilder("Table " + name + "\n");
         s.append(this.schema.toString());
         Row[] rows = this.selectAll();
-        if(rows != null) {
-            for (Row row : rows) {
-                s.append(row.toString());
-            }
-        }
+        s.append(Row.toStrings(rows));
         return s.toString();
     }
 }

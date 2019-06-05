@@ -1,7 +1,6 @@
 package Parser;
 
-import Database.Database;
-import Database.Table;
+import Database.*;
 import Utils.Utils;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
@@ -290,7 +289,17 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             }
 
             // where
-            // TODO: where
+            String att = whereExpr.getChild(0).getText();
+            String relation = whereExpr.getChild(1).getText();
+            String value = whereExpr.getChild(2).getText();
+            if(value.charAt(0) == '\''){
+                value = value.substring(1, value.length() - 1);
+            }
+            Object cnt = Utils.stringToObject(value, table.getType(att));
+
+            ArrayList<Row> rows = table.select(att, relation, cnt);
+            System.out.println(Row.toStrings(rows));
+
         }
         else if(type == 2){
             // TODO: join
@@ -379,7 +388,6 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             table.insert(atts, values);
         }
 
-//        System.out.println(table);
         return null;
     }
 
@@ -422,17 +430,12 @@ public class SDBVisitor extends SQLiteBaseVisitor {
 
         // has where
         if(hasWhere) {
-//            System.out.println(table);
             table.delete(att, relation, cnt);
-//            System.out.println(table);
         }
         else {
-//            System.out.println(table);
             table.deleteAll();
-//            System.out.println(table);
         }
 
-//        table.close();
         return null;
     }
 
