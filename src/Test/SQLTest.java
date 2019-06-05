@@ -52,8 +52,19 @@ public class SQLTest {
                 "INSERT INTO avengers VALUES (5, 'Groot', 10, 182.1, 2.76);";
         insert1 = Utils.replaceBlank(insert1);
 
+        String insert2 = "INSERT INTO villain VALUES (1, 'Thanos', 100);\n" +
+                "INSERT INTO villain VALUES (2, 'Red Skull', 40);\n" +
+                "INSERT INTO villain VALUES (3, 'Hella', 90);\n" +
+                "INSERT INTO villain VALUES (4, 'monster', 10);";
+        insert2 = Utils.replaceBlank(insert2);
+
         String selectAll1 = "SELECT * FROM avengers;";
+        String selectAll2 = "SELECT * FROM villain;";
+
         String delete1 = "DELETE FROM avengers WHERE name = 'Groot';";
+        String update1 = "UPDATE avengers SET power = 100 WHERE name = 'Captain';";
+
+        String select1 = "select id, name from avengers where id = 4;";
 
 //        String select1 = "SELECT ID FROM person WHERE name = 'Ted';";
 //        String select2 = "SELECT tableName1.AttrName1, tableName1.AttrName2 tableName2.AttrName1, tableName2.AttrName2 FROM tableName1 JOIN tableName2 ON tableName1.attrName1 = tableName2.attrName2 WHERE  attrName1 = attrValue;";
@@ -70,7 +81,7 @@ public class SQLTest {
 //        String update = "UPDATE  person  SET  name = gg  WHERE  ID = 13;";
 
 
-        String code = useDB + delete1 + selectAll1;
+        String code = useDB + select1;
 //        String code = createDB + useDB + select1 + showTable;
         SQLiteLexer lexer = new SQLiteLexer(new ANTLRInputStream(code));
 
