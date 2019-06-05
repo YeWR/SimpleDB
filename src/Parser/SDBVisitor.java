@@ -288,6 +288,8 @@ public class SDBVisitor extends SQLiteBaseVisitor {
                 return null;
             }
 
+            ArrayList<Integer> attsPos = table.attributesPos(atts);
+
             // where
             String att = whereExpr.getChild(0).getText();
             String relation = whereExpr.getChild(1).getText();
@@ -298,8 +300,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             Object cnt = Utils.stringToObject(value, table.getType(att));
 
             ArrayList<Row> rows = table.select(att, relation, cnt);
-            System.out.println(Row.toStrings(rows));
-
+            this.out(Row.out(rows, attsPos));
         }
         else if(type == 2){
             // TODO: join

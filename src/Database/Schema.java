@@ -183,6 +183,16 @@ public class Schema {
         return true;
     }
 
+    public ArrayList<Integer> attributesPos(ArrayList<String> atts){
+        ArrayList<Integer> list = new ArrayList<>();
+        for (String att : atts){
+            int pos = this.namePos(att);
+            list.add(pos);
+        }
+
+        return list;
+    }
+
     public String show(){
         StringBuilder s = new StringBuilder("");
         for (int i = 0; i < this.columns(); ++i){

@@ -51,14 +51,24 @@ public class Row {
         return sqlCompare.compare(o1);
     }
 
-    public String toString(){
-        String s = new String();
-        for (int i = 0; i < this.data.length; ++i){
-            s += "\t|\t";
-            s += this.data[i].toString();
+    public String out(ArrayList<Integer> positions){
+        StringBuilder s = new StringBuilder();
+        for (int position : positions){
+            s.append("\t|\t");
+            s.append(this.data[position].toString());
         }
-        s += "\t|\n";
-        return s;
+        s.append("\t|\n");
+        return s.toString();
+    }
+
+    public String toString(){
+        StringBuilder s = new StringBuilder();
+        for (Object aData : this.data) {
+            s.append("\t|\t");
+            s.append(aData.toString());
+        }
+        s.append("\t|\n");
+        return s.toString();
     }
 
     public static String toStrings(Row[] rows){
@@ -77,6 +87,17 @@ public class Row {
         if(rows != null) {
             for (Row row : rows) {
                 s.append(row.toString());
+            }
+        }
+
+        return s.toString();
+    }
+
+    public static String out(ArrayList<Row> rows, ArrayList<Integer> positions){
+        StringBuilder s = new StringBuilder();
+        if(rows != null) {
+            for (Row row : rows) {
+                s.append(row.out(positions));
             }
         }
 

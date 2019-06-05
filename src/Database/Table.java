@@ -475,6 +475,10 @@ public class Table{
         return this.schema.hasAttributes(atts);
     }
 
+    public ArrayList<Integer> attributesPos(ArrayList<String> atts){
+        return this.schema.attributesPos(atts);
+    }
+
     public void close(){
         if(trees == null){
             return;
