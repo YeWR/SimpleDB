@@ -115,8 +115,13 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             System.out.println("database not set!");
             return null;
         }
-
         String tableName = ctx.getChild(2).getText().toLowerCase();
+
+        if(this.db.tableIsExist(tableName)){
+            System.out.println("Table " + tableName + " exists");
+            return null;
+        }
+
         ArrayList<String> names = new ArrayList<>();
         ArrayList<String> types = new ArrayList<>();
         ArrayList<String> indexes = new ArrayList<>();

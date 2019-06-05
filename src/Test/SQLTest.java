@@ -53,6 +53,7 @@ public class SQLTest {
         insert1 = Utils.replaceBlank(insert1);
 
         String selectAll1 = "SELECT * FROM avengers;";
+        String delete1 = "DELETE FROM avengers WHERE name = 'Groot';";
 
 //        String select1 = "SELECT ID FROM person WHERE name = 'Ted';";
 //        String select2 = "SELECT tableName1.AttrName1, tableName1.AttrName2 tableName2.AttrName1, tableName2.AttrName2 FROM tableName1 JOIN tableName2 ON tableName1.attrName1 = tableName2.attrName2 WHERE  attrName1 = attrValue;";
@@ -69,7 +70,7 @@ public class SQLTest {
 //        String update = "UPDATE  person  SET  name = gg  WHERE  ID = 13;";
 
 
-        String code = useDB + createTable1 + createTable2 + showTable1 + showTable2 + insert1 + selectAll1;
+        String code = useDB + delete1 + selectAll1;
 //        String code = createDB + useDB + select1 + showTable;
         SQLiteLexer lexer = new SQLiteLexer(new ANTLRInputStream(code));
 
