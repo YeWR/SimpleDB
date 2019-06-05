@@ -4,6 +4,7 @@ import Database.Database;
 import Database.Table;
 import Utils.Utils;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -228,6 +229,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
 
         String tableName = ctx.getChild(2).getText();
         out(this.db.getTable(tableName).show());
+        System.out.println(this.db.getTable(tableName));
 
         return null;
     }
@@ -377,7 +379,60 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             table.insert(atts, values);
         }
 
-        System.out.println(table);
+//        System.out.println(table);
+        return null;
+    }
+
+    /*
+     * delete
+     */
+    public Object visitDelete_stmt(SQLiteParser.Delete_stmtContext ctx){
+        if(this.db == null){
+            System.out.println("database not set!");
+            return null;
+        }
+        String tableName = ctx.getChild(2).getText();
+
+        // check table exist
+        if(!this.db.tableIsExist(tableName)){
+            System.out.println("table " + tableName + " not exists!");
+            // TODO: process
+            return null;
+        }
+        Table table = this.db.getTable(tableName);
+
+        boolean hasWhere = false;
+        String att = null, relation = null, value = null;
+        Object cnt = null;
+        for (int i = 3; i < ctx.children.size(); ++i){
+            ParseTree tree = ctx.getChild(i);
+            if(tree.getClass() == TerminalNodeImpl.class && tree.getText().toLowerCase().equals("where")){
+                hasWhere = true;
+            }
+            else if(tree.getClass() == SQLiteParser.ExprContext.class) {
+                att = tree.getChild(0).getText();
+                relation = tree.getChild(1).getText();
+                value = tree.getChild(2).getText();
+                if(value.charAt(0) == '\''){
+                    value = value.substring(1, value.length() - 1);
+                }
+                cnt = Utils.stringToObject(value, table.getType(att));
+            }
+        }
+
+        // has where
+        if(hasWhere) {
+            System.out.println(table);
+            table.delete(att, relation, cnt);
+            System.out.println(table);
+        }
+        else {
+            System.out.println(table);
+            table.deleteAll();
+            System.out.println(table);
+        }
+
+        table.close();
         return null;
     }
 

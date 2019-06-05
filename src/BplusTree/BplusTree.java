@@ -1,5 +1,6 @@
 package BplusTree;
 
+import Utils.SqlCompare;
 import serialization.SerDeserializer;
 
 import java.io.*;
@@ -256,8 +257,8 @@ public class BplusTree<T> {
 		
 		return true ;
 	}
-	
-	public long[] traverse(){
+
+	public long[] traverse(SqlCompare compare, ArrayList<T> tempKeys){
 		if (root == null){
 			System.out.println("Root is null.");
 			return null;
@@ -265,7 +266,7 @@ public class BplusTree<T> {
 
 		ArrayList<Long> values;
 		if(root.isLeaf()){
-			values = root.getData();
+			values = root.getData(compare, tempKeys);
 		}
 		else {
 			values = new ArrayList<>();
@@ -280,7 +281,7 @@ public class BplusTree<T> {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				ArrayList<Long> curVals = cNode.getData();
+				ArrayList<Long> curVals = cNode.getData(compare, tempKeys);
 				values.addAll(curVals);
 				queue.addAll(cNode.getChildren()) ;
 			}

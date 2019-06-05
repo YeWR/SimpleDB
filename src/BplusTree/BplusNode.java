@@ -1,5 +1,6 @@
 package BplusTree;
 
+import Utils.SqlCompare;
 import serialization.SerDeserializer;
 
 import java.io.ByteArrayInputStream;
@@ -212,6 +213,8 @@ public class BplusNode<T>  {
 						
 						keys.remove(i) ;
 						data.remove(i) ;
+
+                        writetoDisk();
 						
 						break ;
 					}
@@ -619,9 +622,27 @@ public class BplusNode<T>  {
 		return data.get(index) ;
 	}
 
-	public ArrayList<Long> getData() {
+	public ArrayList<Long> getData(SqlCompare compare, ArrayList<T> ks) {
 		ArrayList<Long> res = new ArrayList<Long>();
-        res.addAll(this.data);
+		if(compare == null){
+			if(ks != null) {
+				ks.addAll(this.keys);
+			}
+
+			res.addAll(this.data);
+		}
+		else {
+			for (int i = 0; i < this.keys.size(); ++i){
+				if(compare.compare(this.keys.get(i))){
+					if(ks != null) {
+						ks.add(this.keys.get(i));
+					}
+
+					res.add(this.data.get(i));
+				}
+			}
+		}
+
         return res;
 	}
 

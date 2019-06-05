@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static Utils.FileUtils.deleteDir;
 
@@ -37,6 +38,12 @@ public class Table{
         this.schema = schema;
         this.name = name;
 
+        this.initFile();
+        this.initIndex();
+        this.writeToFile();
+    }
+
+    private void initFile(){
         this.path = Paths.get(this.db.getPath().toString(), this.name);
         FileUtils.createDir(path.toString());
 
@@ -45,9 +52,6 @@ public class Table{
 
         String dataPath = Paths.get(this.path.toString(), this.name + ".db").toString();
         FileUtils.createFile(dataPath);
-
-        this.initIndex();
-        this.writeToFile();
     }
 
     /**
@@ -196,7 +200,7 @@ public class Table{
     }
 
     public Row[] selectAll(){
-        long[] position = this.trees.get(this.schema.primaryKey()).traverse();
+        long[] position = this.trees.get(this.schema.primaryKey()).traverse(null, null);
         if(position == null || position.length == 0){
             return null;
         }
@@ -226,6 +230,89 @@ public class Table{
             row = new Row(this, position, rowDisk);
         }
         return row;
+    }
+
+    public void deleteAll(){
+        Set<String> keys = this.trees.keySet();
+
+        this.close();
+        Path dataPath = Paths.get(this.path.toString(), name + ".db");
+        deleteDir(dataPath.toString());
+
+        for (String k : keys){
+            Path temp = Paths.get(this.path.toString(), name + "_" + k + ".index");
+            deleteDir(temp.toString());
+        }
+
+        this.trees.clear();
+        this.initFile();
+        this.initIndex();
+    }
+
+    public int delete(String att, String relation, Object data){
+        int record = 0;
+        for (Map.Entry<String, BplusTree> entry : this.trees.entrySet()){
+            BplusTree tree = entry.getValue();
+            String indexName = entry.getKey();
+            SqlCompare compare = new SqlCompare(relation, data, this.getType(att));
+            int attPos = this.schema.namePos(att);
+
+            // the att is the index
+            if(indexName.equals(att)){
+                ArrayList keys = new ArrayList();
+                long[] position = tree.traverse(compare, keys);
+                if(position == null || position.length == 0){
+                    continue;
+                }
+                record = position.length;
+
+                // delete data
+                Path dataPath = Paths.get(this.path.toString(), name + ".db");
+                FileManagerBase deleteFm = new FileManagerBase(dataPath.toString(), Prototype.BLOCK_SIZE);
+                BlockDisk.delete(deleteFm, position);
+                try {
+                    deleteFm.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                // delete index
+                for (Object k : keys){
+                    tree.delete(k);
+                }
+            }
+            // not the index
+            else {
+                record = 0;
+                ArrayList keys = new ArrayList();
+                long[] position = tree.traverse(null, keys);
+                Path dataPath = Paths.get(this.path.toString(), name + ".db");
+                FileManagerBase deleteFm = new FileManagerBase(dataPath.toString(), Prototype.BLOCK_SIZE);
+
+                if(position == null || position.length == 0){
+                    continue;
+                }
+
+                for (int i = 0; i < position.length; ++i){
+                    RowDisk rowDisk = new RowDisk(dataPath.toString(), Prototype.BLOCK_SIZE, Prototype.INFO_SIZE);
+                    Row row = new Row(this, (int) position[i], rowDisk);
+
+                    // delete
+                    if(row.compare(attPos, compare)){
+                        BlockDisk.delete(deleteFm, (int) position[i]);
+                        tree.delete(keys.get(i));
+                        System.out.println(this);
+                        record += 1;
+                    }
+                }
+
+                try {
+                    deleteFm.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return record;
     }
 
     public void delete(String idName, Object index){

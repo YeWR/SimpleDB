@@ -16,17 +16,18 @@ public class SQLTest {
 
         String createTable1 = "CREATE TABLE person (name String(256), ID Int not null, PRIMARY KEY(ID));";
         String createTable2 = "CREATE TABLE tableName(attrName1 String, attrName2 Long, attrNameN Int NOT NULL);";
-        String dropTable = "DROP TABLE tableName;";
-        String showTable = "SHOW TABLE tableName;";
+        String dropTable = "DROP TABLE person;";
+        String showTable = "SHOW TABLE person;";
         String select1 = "SELECT  attrName1, attrName2 FROM  tableName WHERE attrName1 = '';";
         String select2 = "SELECT tableName1.AttrName1, tableName1.AttrName2 tableName2.AttrName1, tableName2.AttrName2 FROM tableName1 JOIN tableName2 ON tableName1.attrName1 = tableName2.attrName2 WHERE  attrName1 = attrValue;";
         String insert1 = "INSERT INTO person VALUES ('Bob', 15)";
         String insert2 = "INSERT INTO person(name, ID) VALUES ('Tom', 13);";
-        String delete = "DELETE FROM tableName WHERE attrName = attValue;";
+        String delete = "DELETE FROM person WHERE name = Tom;";
+        String delete2 = "DELETE FROM person;";
         String update = "UPDATE  tableName  SET  attrName = attrValue  WHERE  attrName = attrValue;";
 
 
-        String code = createDB + useDB + createTable1 + insert2;
+        String code = createDB + useDB + dropTable + createTable1 + showTable + insert1 + insert2 + delete + showTable;
         SQLiteLexer lexer = new SQLiteLexer(new ANTLRInputStream(code));
 
         CommonTokenStream tokenStream = new CommonTokenStream(lexer);

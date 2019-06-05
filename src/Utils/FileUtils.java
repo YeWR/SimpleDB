@@ -71,6 +71,13 @@ public class FileUtils {
         }
     }
 
+    public static boolean resetFile(String fileName){
+        File file = new File(fileName);
+        file.delete();
+
+        return createFile(fileName);
+    }
+
     public static boolean deleteDir(String dirName){
         File dir = new File(dirName);
         if (dir.isDirectory()) {

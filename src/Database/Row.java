@@ -1,6 +1,6 @@
 package Database;
 
-import Utils.Utils;
+import Utils.*;
 
 public class Row {
     /**
@@ -42,6 +42,11 @@ public class Row {
         }
         rowDisk.close();
         return row;
+    }
+
+    public boolean compare(int pos, SqlCompare sqlCompare){
+        Object o1 = this.data[pos];
+        return sqlCompare.compare(o1);
     }
 
     public String toString(){
