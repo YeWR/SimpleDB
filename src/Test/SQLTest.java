@@ -31,11 +31,11 @@ public class SQLTest {
         String delete1 = "DELETE FROM person WHERE ID = 15;";
         String delete2 = "DELETE FROM person WHERE ID = 13;";
         String deleteAll = "DELETE FROM person;";
-        String update = "UPDATE  person  SET  ID = 13  WHERE  name = 'gg';";
+        String update = "UPDATE  person  SET  name = gg  WHERE  ID = 13;";
 
 
 //        String code = createDB + useDB + dropTable + createTable1 + insert1 + insert2 + insert3 + showTable;
-        String code = createDB + useDB + select1;
+        String code = createDB + useDB + showTable;
         SQLiteLexer lexer = new SQLiteLexer(new ANTLRInputStream(code));
 
         CommonTokenStream tokenStream = new CommonTokenStream(lexer);

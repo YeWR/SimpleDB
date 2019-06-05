@@ -499,9 +499,8 @@ public class SDBVisitor extends SQLiteBaseVisitor {
                 }
             }
         }
-
-        // insert
-
+        // update
+        table.update(atts, values, att, relation, cnt);
 
         return null;
     }

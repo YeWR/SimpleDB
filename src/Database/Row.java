@@ -51,6 +51,18 @@ public class Row {
         return sqlCompare.compare(o1);
     }
 
+    public void update(ArrayList<Integer> positions, ArrayList<Object> values){
+        assert positions.size() == values.size();
+
+        for(int i = 0; i < positions.size(); ++i){
+            data[positions.get(i)] = values.get(i);
+        }
+    }
+
+    public Object[] getData(){
+        return this.data;
+    }
+
     public String out(ArrayList<Integer> positions){
         StringBuilder s = new StringBuilder();
         for (int position : positions){

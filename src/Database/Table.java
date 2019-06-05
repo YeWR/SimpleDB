@@ -384,7 +384,26 @@ public class Table{
      */
 
     public void update(ArrayList<String> atts, ArrayList<Object> values, String att, String relation, Object data){
+        // select
+        ArrayList<Row> rows = this.select(att, relation, data);
+        if(rows == null || rows.size() == 0){
+            return;
+        }
 
+        ArrayList<Integer> positions = this.attributesPos(atts);
+
+        // change data
+        for (Row row : rows){
+            row.update(positions, values);
+        }
+
+        // delete
+        this.delete(att, relation, data);
+
+        // insert
+        for (Row row : rows){
+            this.insert(row.getData());
+        }
     }
 
     public void update(String idName, Object index, Object[] data){
@@ -392,6 +411,10 @@ public class Table{
         this.delete(idName, index);
         this.insert(data);
     }
+
+    /*
+     * others
+     */
 
     public void writeToFile(){
         try {
@@ -450,17 +473,6 @@ public class Table{
     }
 
     private boolean checkPrimaryKey(Object[] objs){
-//        boolean ans = true;
-//        for(int id : this.schema.getIndexes()){
-//            String idName = this.schema.name(id);
-//            BplusTree tree = this.trees.get(idName);
-//            Object value = objs[id];
-//            int position = (int) tree.find(value);
-//            if(position != 0){
-//                ans = false;
-//                break;
-//            }
-//        }
         String idName = this.schema.primaryKey();
         BplusTree tree = this.trees.get(idName);
         Object value = objs[this.schema.primaryKeyPos()];
