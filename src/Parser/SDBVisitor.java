@@ -300,7 +300,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             Object cnt = Utils.stringToObject(value, table.getType(att));
 
             ArrayList<Row> rows = table.select(att, relation, cnt);
-            this.out(Row.out(rows, attsPos));
+            this.out(table.out(attsPos) + Row.out(rows, attsPos));
         }
         else if(type == 2){
             // TODO: join

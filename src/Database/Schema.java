@@ -175,6 +175,10 @@ public class Schema {
     }
 
     public boolean hasAttributes(ArrayList<String> atts){
+        if(atts.size() == 1 && atts.get(0).equals("*")){
+            return true;
+        }
+
         for(String att : atts){
             if(!this.names.contains(att)){
                 return false;
@@ -185,12 +189,29 @@ public class Schema {
 
     public ArrayList<Integer> attributesPos(ArrayList<String> atts){
         ArrayList<Integer> list = new ArrayList<>();
-        for (String att : atts){
-            int pos = this.namePos(att);
-            list.add(pos);
+        if(atts.size() == 1 && atts.get(0).equals("*")){
+            for (int i = 0; i < this.columns(); ++i){
+                list.add(i);
+            }
+        }
+        else {
+            for (String att : atts){
+                int pos = this.namePos(att);
+                list.add(pos);
+            }
         }
 
         return list;
+    }
+
+    public String out(ArrayList<Integer> positions){
+        StringBuilder s = new StringBuilder();
+        for (int position : positions){
+            s.append("\t|\t");
+            s.append(this.names.get(position));
+        }
+        s.append("\t|\n");
+        return s.toString();
     }
 
     public String show(){

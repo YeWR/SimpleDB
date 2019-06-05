@@ -508,6 +508,10 @@ public class Table{
         }
     }
 
+    public String out(ArrayList<Integer> positions){
+        return this.schema.out(positions);
+    }
+
     public String show(){
         return this.schema.show();
     }
