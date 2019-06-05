@@ -422,19 +422,86 @@ public class SDBVisitor extends SQLiteBaseVisitor {
 
         // has where
         if(hasWhere) {
-            System.out.println(table);
+//            System.out.println(table);
             table.delete(att, relation, cnt);
-            System.out.println(table);
+//            System.out.println(table);
         }
         else {
-            System.out.println(table);
+//            System.out.println(table);
             table.deleteAll();
-            System.out.println(table);
+//            System.out.println(table);
         }
 
-        table.close();
+//        table.close();
         return null;
     }
+
+    /*
+     * update
+     */
+    public Object visitUpdate_stmt(SQLiteParser.Update_stmtContext ctx){
+        if(this.db == null){
+            System.out.println("database not set!");
+            return null;
+        }
+        String tableName = ctx.getChild(1).getText();
+
+        // check table exist
+        if(!this.db.tableIsExist(tableName)){
+            System.out.println("table " + tableName + " not exists!");
+            // TODO: process
+            return null;
+        }
+        Table table = this.db.getTable(tableName);
+
+        ArrayList<String> atts = new ArrayList<>();
+        ArrayList<Object> values = new ArrayList<>();
+        // where
+        String att = null, relation = null, value = null;
+        Object cnt = null;
+        boolean afterWhere = false;
+        int index = 0;
+
+        for (int i = 3; i < ctx.children.size(); ++i){
+            ParseTree tree = ctx.getChild(i);
+            if(tree.getClass() == TerminalNodeImpl.class && tree.getText().toLowerCase().equals("where")){
+                afterWhere = true;
+            }
+
+            if(afterWhere){
+                if(tree.getClass() == SQLiteParser.ExprContext.class){
+                    att = tree.getChild(0).getText();
+                    relation = tree.getChild(1).getText();
+                    value = tree.getChild(2).getText();
+                    if(value.charAt(0) == '\''){
+                        value = value.substring(1, value.length() - 1);
+                    }
+                    cnt = Utils.stringToObject(value, table.getType(att));
+                }
+            }
+            else {
+                if(tree.getClass() == SQLiteParser.Column_nameContext.class){
+                    atts.add(tree.getText());
+
+                }
+                else if(tree.getClass() == SQLiteParser.ExprContext.class){
+                    String temp = tree.getText();
+                    if(temp.charAt(0) == '\''){
+                        temp = temp.substring(1, temp.length() - 1);
+                    }
+                    values.add(Utils.stringToObject(temp, table.getType(atts.get(index))));
+
+                    index += 1;
+                }
+            }
+        }
+
+        // insert
+
+
+        return null;
+    }
+
 
 }
 

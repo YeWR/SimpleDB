@@ -300,7 +300,8 @@ public class Table{
                     if(row.compare(attPos, compare)){
                         BlockDisk.delete(deleteFm, (int) position[i]);
                         tree.delete(keys.get(i));
-                        System.out.println(this);
+                        tree.close();
+//                        System.out.println(this);
                         record += 1;
                     }
                 }
@@ -330,6 +331,10 @@ public class Table{
 
         // delete index
         tree.delete(index);
+    }
+
+    public void update(ArrayList<String> atts, ArrayList<Object> values, String att, String relation, Object data){
+
     }
 
     public void update(String idName, Object index, Object[] data){
