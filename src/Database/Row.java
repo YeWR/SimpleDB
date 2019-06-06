@@ -26,6 +26,12 @@ public class Row {
         this.data = out();
     }
 
+    public Row(Object[] objects){
+        this.table = null;
+
+        data = objects.clone();
+    }
+
     private Object[] out(){
         byte[] bytes = rowDisk.read(position);
         int num = table.column();
@@ -61,6 +67,14 @@ public class Row {
 
     public Object[] getData(){
         return this.data;
+    }
+
+    public Object getData(int position){
+        return this.data[position];
+    }
+
+    public int column(){
+        return this.data.length;
     }
 
     public String out(ArrayList<Integer> positions){

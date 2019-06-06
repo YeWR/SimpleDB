@@ -35,6 +35,13 @@ public class Schema {
         }
     }
 
+    public Schema(String[] names, String[] types, Integer[] indexes){
+        assert names.length == types.length;
+        this.names = new ArrayList<>(Arrays.asList(names));
+        this.types = new ArrayList<>(Arrays.asList(types));
+        this.indexes = new ArrayList<>(Arrays.asList(indexes));
+    }
+
     /**
      * for read
      * @param bytes
@@ -133,6 +140,8 @@ public class Schema {
         return this.types.get(index);
     }
 
+    public ArrayList<String> getNames(){return names;}
+
     public ArrayList<String> getTypes(){
         return types;
     }
@@ -172,6 +181,10 @@ public class Schema {
 
     public int primaryKeyPos(){
         return this.indexes.get(0);
+    }
+
+    public boolean hasAttribute(String att){
+        return this.names.contains(att);
     }
 
     public boolean hasAttributes(ArrayList<String> atts){

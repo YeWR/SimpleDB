@@ -260,8 +260,8 @@ public class SDBVisitor extends SQLiteBaseVisitor {
         }
 
         ArrayList<ParseTree> attributesNode = new ArrayList<>();
+        JoinContent joinContent = null;
         ParseTree tableNode = null;
-        ParseTree tableNode2 = null;
         ParseTree whereExpr = null;
         int type = 0;
 
@@ -277,6 +277,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             }
             else if(child.getClass() == SQLiteParser.Join_clauseContext.class){
                 tableNode = child;
+                joinContent = (JoinContent) visit(child);
                 type = 2;
             }
             else if(child.getClass() == SQLiteParser.ExprContext.class){
@@ -328,12 +329,99 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             }
         }
         else if(type == 2){
+            String tableName1 = joinContent.tableName1;
+            String tableName2 = joinContent.tableName2;
 
+            // check table exist
+            if(!this.db.tableIsExist(tableName1)){
+                System.out.println("table " + tableName1 + " not exists!");
+                // TODO: process
+                return null;
+            }
+            Table table1 = this.db.getTable(tableName1);
+
+            if(!this.db.tableIsExist(tableName2)){
+                System.out.println("table " + tableName2 + " not exists!");
+                // TODO: process
+                return null;
+            }
+            Table table2 = this.db.getTable(tableName2);
+
+            ArrayList<String> atts = new ArrayList<>();
+            for (ParseTree p : attributesNode){
+                atts.add(p.getText());
+            }
+
+            // check
+            for (String att : atts){
+                String[] res = att.split("\\.");
+                boolean hasAtt = this.db.hasAttributeInTable(res[0], res[1]);
+                if(!hasAtt){
+                    System.out.println("Table " + res[0] + " has no attribute named " + res[1] + " !");
+                    return null;
+                }
+            }
+
+            View view = new View(table1, table2);
+
+            ArrayList<Integer> attsPos = view.getPositions(atts);
+            JoinConstraint constraint = joinContent.constraint;
+
+            String att = null, relation = null, value = null;
+            Object cnt = null;
+            if(whereExpr != null ){
+                att = whereExpr.getChild(0).getText();
+                relation = whereExpr.getChild(1).getText();
+                value = whereExpr.getChild(2).getText();
+                if(value.charAt(0) == '\''){
+                    value = value.substring(1, value.length() - 1);
+                }
+
+                cnt = Utils.stringToObject(value, view.getType(att));
+            }
+            ArrayList<Row> rows = view.select(constraint.pattern1, constraint.relation, constraint.pattern2, att, relation, cnt);
+
+            this.out(view.out(attsPos) + Row.out(rows, attsPos));
         }
 
-
-
         return null;
+    }
+
+    public Object visitJoin_clause(SQLiteParser.Join_clauseContext ctx){
+        JoinContent content = new JoinContent();
+
+        String table1 = null;
+        String table2 = null;
+        for (ParseTree child : ctx.children){
+            if(child.getClass() == SQLiteParser.Table_or_subqueryContext.class){
+                if(table1 == null){
+                    table1 = child.getText();
+                }
+                else {
+                    table2 = child.getText();
+                }
+            }
+            else if(child.getClass() == SQLiteParser.Join_constraintContext.class){
+                JoinConstraint constraint = (JoinConstraint) visit(child);
+                content.constraint = constraint;
+            }
+        }
+
+        content.tableName1 = table1;
+        content.tableName2 = table2;
+
+        return content;
+    }
+
+    public Object visitJoin_constraint(SQLiteParser.Join_constraintContext ctx){
+        ParseTree expr = ctx.getChild(1);
+        JoinConstraint constraint = new JoinConstraint();
+
+        constraint.pattern1 = expr.getChild(0).getText();
+        constraint.relation = expr.getChild(1).getText();
+        constraint.pattern2 = expr.getChild(2).getText();
+
+        return constraint;
     }
 
     public void out(String string){
@@ -531,6 +619,19 @@ public class SDBVisitor extends SQLiteBaseVisitor {
     }
 
 
+}
+
+class JoinContent{
+    public String tableName1;
+    public String tableName2;
+
+    public JoinConstraint constraint;
+}
+
+class JoinConstraint{
+    public String pattern1;
+    public String relation;
+    public String pattern2;
 }
 
 class ColumnType{

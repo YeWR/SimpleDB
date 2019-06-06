@@ -65,6 +65,9 @@ public class SQLTest {
         String update1 = "UPDATE avengers SET power = 100 WHERE name = 'Captain';";
 
         String select1 = "select id, name from avengers where id = 4;";
+        String select2 = "select avengers.name, villain.name, villain.power from avengers join villain on avengers.power = villain.power where villain.power > 40;";
+        String select3 = "select * from avengers;";
+
 
 //        String select1 = "SELECT ID FROM person WHERE name = 'Ted';";
 //        String select2 = "SELECT tableName1.AttrName1, tableName1.AttrName2 tableName2.AttrName1, tableName2.AttrName2 FROM tableName1 JOIN tableName2 ON tableName1.attrName1 = tableName2.attrName2 WHERE  attrName1 = attrValue;";
@@ -81,7 +84,7 @@ public class SQLTest {
 //        String update = "UPDATE  person  SET  name = gg  WHERE  ID = 13;";
 
 
-        String code = useDB + select1;
+        String code = createDB + useDB + createTable1 + createTable2 + insert1 + delete1 + update1 + insert2 + showTable1 + select2 + select3 + select1;
 //        String code = createDB + useDB + select1 + showTable;
         SQLiteLexer lexer = new SQLiteLexer(new ANTLRInputStream(code));
 

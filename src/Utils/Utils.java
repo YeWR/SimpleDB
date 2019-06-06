@@ -72,4 +72,11 @@ public class Utils {
         }
         return dest;
     }
+
+    public static Object[] combineObj(Object[] o1, Object[] o2){
+        Object[] objects = new Object[o1.length + o2.length];
+        System.arraycopy(o1, 0, objects, 0, o1.length);
+        System.arraycopy(o2, 0, objects, o1.length, o2.length);
+        return objects;
+    }
 }

@@ -79,6 +79,11 @@ public class Database extends Prototype {
         return this.path;
     }
 
+    public boolean hasAttributeInTable(String tableName, String att){
+        Table table = this.getTable(tableName);
+        return table.hasAttribute(att);
+    }
+
     public boolean tableIsExist(String tableName) {
         Path filePath = Paths.get(path.toString(), tableName);
         return FileUtils.fileExist(filePath.toString());

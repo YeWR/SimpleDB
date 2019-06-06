@@ -16,10 +16,7 @@ import java.util.Set;
 import static Utils.FileUtils.deleteDir;
 
 public class Table{
-    /**
-     * @param TYPE_SIZE: type的存储byte大小
-     * =========================================
-     */
+
     private Database db;
     private Schema schema;
     private String name;
@@ -459,6 +456,10 @@ public class Table{
         return this.schema.getType(name);
     }
 
+    public String getType(int index){
+        return this.schema.type(index);
+    }
+
     private boolean check(Object[] objs){
         boolean ans = true;
         assert objs.length == this.schema.columns();
@@ -483,12 +484,40 @@ public class Table{
         return true;
     }
 
+    public boolean hasAttribute(String att){
+        return this.schema.hasAttribute(att);
+    }
+
     public boolean hasAttributes(ArrayList<String> atts){
         return this.schema.hasAttributes(atts);
     }
 
+    public ArrayList<Integer> getIndexes(){
+        return this.schema.getIndexes();
+    }
+
     public ArrayList<Integer> attributesPos(ArrayList<String> atts){
         return this.schema.attributesPos(atts);
+    }
+
+    public ArrayList<String> getNames(){
+        return this.schema.getNames();
+    }
+
+    public int namePos(String name){
+        return this.schema.namePos(name);
+    }
+
+    public String getName(){
+        return this.name;
+    }
+
+    public String getDbName(){
+        return this.db.getName();
+    }
+
+    public Database getDb() {
+        return this.db;
     }
 
     public void close(){
