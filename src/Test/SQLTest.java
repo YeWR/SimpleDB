@@ -58,6 +58,8 @@ public class SQLTest {
                 "INSERT INTO villain VALUES (4, 'monster', 10);";
         insert2 = Utils.replaceBlank(insert2);
 
+        String insert3 = "Insert into avengers(id, name, power) values (12, 'GG', 55);";
+
         String selectAll1 = "SELECT * FROM avengers;";
         String selectAll2 = "SELECT * FROM villain;";
 
@@ -84,7 +86,8 @@ public class SQLTest {
 //        String update = "UPDATE  person  SET  name = gg  WHERE  ID = 13;";
 
 
-        String code = createDB + useDB + createTable1 + createTable2 + insert1 + delete1 + update1 + insert2 + showTable1 + select2 + select3 + select1;
+//        String code = createDB + useDB + createTable1 + createTable2 + insert1 + delete1 + update1 + insert2 + showTable1 + select2 + select3 + select1;
+        String code = createDB + useDB + createTable1 + selectAll1;
 //        String code = createDB + useDB + select1 + showTable;
         SQLiteLexer lexer = new SQLiteLexer(new ANTLRInputStream(code));
 

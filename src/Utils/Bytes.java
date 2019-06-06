@@ -31,16 +31,29 @@ public class Bytes {
         }
     }
 
-    public static byte[] objectsToBytes(Object[] objs){
+    public static byte[] objectsToBytes(Object[] objs, String[] types){
         int len = 0;
-        for (Object obj : objs){
-            int size = Database.classToSize(obj.getClass());
+        for (String type : types){
+            int size = Database.classToSize(Database.typeToClass(type));
             len += size;
+            len += 1;
         }
+
         byte[] bytes = new byte[len];
         int index = 0;
-        for (Object obj : objs){
-            byte[] bt = Bytes.objectToBytes(obj);
+        for (int i = 0; i < objs.length; ++i){
+            Object obj = objs[i];
+            byte[] bt;
+            if(obj == null){
+                bytes[index] = Bytes.booleanToByte(true);
+                bt = new byte[Database.classToSize(Database.typeToClass(types[i]))];
+            }
+            else {
+                bytes[index] = Bytes.booleanToByte(false);
+                bt = Bytes.objectToBytes(obj);
+            }
+
+            index += 1;
             System.arraycopy(bt, 0, bytes, index, bt.length);
 
             index += bt.length;

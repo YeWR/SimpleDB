@@ -184,7 +184,7 @@ public class Table{
         Path dataPath = Paths.get(this.path.toString(), this.name + ".db");
         RowDisk rowDisk = new RowDisk(dataPath.toString(), Prototype.BLOCK_SIZE, Prototype.INFO_SIZE);
 
-        byte[] bytes = Bytes.objectsToBytes(data);
+        byte[] bytes = Bytes.objectsToBytes(data, this.types());
         int value = rowDisk.write(bytes);
         rowDisk.close();
 
@@ -465,6 +465,10 @@ public class Table{
         assert objs.length == this.schema.columns();
         ArrayList<Class> classes = this.schema.getClasses();
         for(int i = 0; i < objs.length; ++i){
+            if(objs[i] == null){
+                // TODO: if not null return false
+                continue;
+            }
             if(objs[i].getClass() != classes.get(i)){
                 ans = false;
                 break;

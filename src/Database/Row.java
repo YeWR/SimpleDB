@@ -41,12 +41,20 @@ public class Row {
 
         int index = 0;
         for (int i = 0; i < num; ++i){
-            int typeSize = Database.getTypeSize(types[i]);
+            int typeSize = Database.getTypeSize(types[i]) + 1;
             byte[] bs = new byte[typeSize];
             System.arraycopy(bytes, index, bs, 0, typeSize);
 
             index += typeSize;
-            row[i] = Utils.byteToObject(bs, types[i]);
+            boolean isNull = Bytes.byteToBoolean(bs[0]);
+            if(isNull){
+                row[i] = null;
+            }
+            else {
+                byte[] cnt = new byte[bs.length - 1];
+                System.arraycopy(bs, 1, cnt, 0, cnt.length);
+                row[i] = Utils.byteToObject(cnt, types[i]);
+            }
         }
         rowDisk.close();
         return row;
@@ -80,8 +88,15 @@ public class Row {
     public String out(ArrayList<Integer> positions){
         StringBuilder s = new StringBuilder();
         for (int position : positions){
+            Object obj = this.data[position];
+
             s.append("\t|\t");
-            s.append(this.data[position].toString());
+            if(obj == null){
+                s.append("\t");
+            }
+            else {
+                s.append(this.data[position].toString());
+            }
         }
         s.append("\t|\n");
         return s.toString();
@@ -91,7 +106,12 @@ public class Row {
         StringBuilder s = new StringBuilder();
         for (Object aData : this.data) {
             s.append("\t|\t");
-            s.append(aData.toString());
+            if(aData == null){
+                s.append("\t");
+            }
+            else {
+                s.append(aData.toString());
+            }
         }
         s.append("\t|\n");
         return s.toString();
