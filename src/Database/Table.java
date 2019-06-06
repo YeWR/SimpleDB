@@ -466,8 +466,14 @@ public class Table{
         ArrayList<Class> classes = this.schema.getClasses();
         for(int i = 0; i < objs.length; ++i){
             if(objs[i] == null){
-                // TODO: if not null return false
-                continue;
+                if(this.schema.canBeNull(i)) {
+                    continue;
+                }
+                else {
+                    System.out.println("attribute " + this.schema.name(i) + " can not be null!");
+                    ans = false;
+                    break;
+                }
             }
             if(objs[i].getClass() != classes.get(i)){
                 ans = false;

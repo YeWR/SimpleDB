@@ -125,6 +125,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
         ArrayList<String> names = new ArrayList<>();
         ArrayList<String> types = new ArrayList<>();
         ArrayList<String> indexes = new ArrayList<>();
+        ArrayList<String> notNullAtts = new ArrayList<>();
 
         for (ParseTree tree : ctx.children){
             if(tree.getClass() == SQLiteParser.Column_defContext.class){
@@ -138,6 +139,9 @@ public class SDBVisitor extends SQLiteBaseVisitor {
                     indexes.add(columnType.name);
                 }
 
+                if(columnType.kind != 0){
+                    notNullAtts.add(columnType.name);
+                }
             }
         }
         if(indexes.size() == 0){
@@ -147,7 +151,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             types.add(0, primaryType);
             indexes.add(0, primaryKey);
         }
-        this.db.createTable(tableName, Utils.toStrings(names), Utils.toStrings(types), Utils.toStrings(indexes));
+        this.db.createTable(tableName, Utils.toStrings(names), Utils.toStrings(types), Utils.toStrings(indexes), Utils.toStrings(notNullAtts));
 
         return null;
     }

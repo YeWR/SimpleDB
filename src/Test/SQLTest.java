@@ -87,7 +87,7 @@ public class SQLTest {
 
 
 //        String code = createDB + useDB + createTable1 + createTable2 + insert1 + delete1 + update1 + insert2 + showTable1 + select2 + select3 + select1;
-        String code = createDB + useDB + createTable1 + selectAll1;
+        String code = createDB + useDB + createTable1 + insert3 + selectAll1;
 //        String code = createDB + useDB + select1 + showTable;
         SQLiteLexer lexer = new SQLiteLexer(new ANTLRInputStream(code));
 

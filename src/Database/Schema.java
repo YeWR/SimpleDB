@@ -16,22 +16,33 @@ public class Schema {
     private ArrayList<String> types;
     // indexes[0] -> primary key
     private ArrayList<Integer> indexes;
+    private ArrayList<Boolean> canBeNull;
 
     /**
      * for create
      * @param names
      * @param types
      */
-    public Schema(String[] names, String[] types, String[] indexNames){
+    public Schema(String[] names, String[] types, String[] indexNames, String[] notNullAtts){
         assert names.length == types.length;
         this.names = new ArrayList<>(Arrays.asList(names));
         this.types = new ArrayList<>(Arrays.asList(types));
 
-        this.indexes = new ArrayList<Integer>(indexNames.length);
+        this.indexes = new ArrayList<>(indexNames.length);
+        this.canBeNull = new ArrayList<>(names.length);
+
         for (String index : indexNames) {
             int id = this.names.indexOf(index);
             assert id >= 0;
             this.indexes.add(id);
+        }
+
+        for (int i = 0; i < names.length; ++i){
+            canBeNull.add(true);
+        }
+        for (int i = 0; i < notNullAtts.length; ++i){
+            int pos = this.namePos(notNullAtts[i]);
+            canBeNull.set(pos, false);
         }
     }
 
@@ -215,6 +226,14 @@ public class Schema {
         }
 
         return list;
+    }
+
+    public ArrayList<Boolean> getCanBeNull(){
+        return this.canBeNull;
+    }
+
+    public Boolean canBeNull(int pos){
+        return this.canBeNull.get(pos);
     }
 
     public String out(ArrayList<Integer> positions){
