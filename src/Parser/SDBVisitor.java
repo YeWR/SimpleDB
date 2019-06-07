@@ -317,7 +317,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             // check table exist
             if(!this.db.tableIsExist(tableNode.getText())){
                 out("table " + tableNode.getText() + " not exists!");
-                // TODO: process
+                
                 return null;
             }
             Table table = this.db.getTable(tableNode.getText());
@@ -330,7 +330,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             // check atts
             if(!table.hasAttributes(atts)){
                 out("atts not exist!");
-                // TODO: process
+                
                 return null;
             }
 
@@ -557,7 +557,6 @@ public class SDBVisitor extends SQLiteBaseVisitor {
         // check table exist
         if(!this.db.tableIsExist(tableName)){
             out("table " + tableName + " not exists!");
-            // TODO: process
             return null;
         }
         Table table = this.db.getTable(tableName);

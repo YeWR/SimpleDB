@@ -1,12 +1,8 @@
 package FileManager;
 
-import Database.BlockDisk;
-import Database.Database;
-import Database.Prototype;
 import Utils.Bytes;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -143,7 +139,6 @@ public class FileManagerBase {
 
     /**
      * find the next available position of block for storing.
-     * TODO: now only append to the tail of file
      * @param num: the number of positions you want
      * @return
      */

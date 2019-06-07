@@ -150,7 +150,7 @@ public class Table{
         assert atts.size() == values.size();
 
         Object[] data = new Object[this.schema.columns()];
-        // TODO: null
+
         for (int i = 0; i < data.length; ++i){
             data[i] = null;
         }
@@ -411,12 +411,6 @@ public class Table{
         }
 
         return rows.size();
-    }
-
-    public void update(String idName, Object index, Object[] data){
-        // TODO: 查重
-        this.delete(idName, index);
-        this.insert(data);
     }
 
     /*
