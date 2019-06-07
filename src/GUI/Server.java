@@ -49,16 +49,16 @@ public class Server {
                     this.out.writeUTF(sql);
                     return;
                 }
-
-                String[] ss = sql.split(" |;");
-                if(ss[0].toLowerCase().equals("import")){
+                sql = Utils.replaceBlank(sql);
+                // test time
+                if(sql.charAt(0) == '+'){
                     long startTime=System.currentTimeMillis();
-                    this.inputSQLFile(ss[1]);
+                    this.inputSQL(sql.substring(1));
                     long endTime=System.currentTimeMillis();
+
                     this.out.writeUTF("Total time: " + (endTime - startTime) + " ms");
                 }
                 else {
-                    sql = Utils.replaceBlank(sql);
                     this.inputSQL(sql);
                 }
             }
@@ -85,10 +85,10 @@ public class Server {
         visitor.visit(parser.parse());
     }
 
-    public void inputSQLFile(String fileName){
-        String sql = FileUtils.readWholeFile(fileName);
-        sql = Utils.replaceBlank(sql);
-
-        this.inputSQL(sql);
-    }
+//    public void inputSQLFile(String fileName){
+//        String sql = FileUtils.readWholeFile(fileName);
+//        sql = Utils.replaceBlank(sql);
+//
+//        this.inputSQL(sql);
+//    }
 }

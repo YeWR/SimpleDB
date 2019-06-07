@@ -269,7 +269,7 @@ public class Database extends Prototype {
         String[] dbs = showDir(p.toString());
         String cnt;
 
-        if(dbs.length == 0){
+        if(dbs == null || dbs.length == 0){
             cnt = "No Database!";
             return cnt;
         }

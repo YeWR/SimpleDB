@@ -1,5 +1,8 @@
 package GUI;
 
+import Utils.FileUtils;
+import Utils.Utils;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
@@ -37,18 +40,34 @@ public class Client{
             while (true){
                 System.out.print("sql>");
                 String cmd = console.nextLine();
-
-                out.writeUTF(cmd);
-                out.flush();
+                String[] ss = cmd.split(" |;");
 
                 if(cmd.toLowerCase().equals("exit")){
+                    out.writeUTF(cmd);
+                    out.flush();
                     return;
+                }
+                else if(ss[0].toLowerCase().equals("import")){
+                    String sql = this.inputSQLFile(ss[1]);
+                    out.writeUTF("+" + sql);
+                    out.flush();
+                }
+                else {
+                    out.writeUTF(cmd);
+                    out.flush();
                 }
             }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public String inputSQLFile(String fileName){
+        String sql = FileUtils.readWholeFile(fileName);
+        sql = Utils.replaceBlank(sql);
+
+        return sql;
     }
 }
 
