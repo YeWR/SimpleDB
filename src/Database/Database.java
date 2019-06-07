@@ -1,5 +1,6 @@
 package Database;
 
+import GUI.Server;
 import Utils.FileUtils;
 
 import java.nio.file.Path;
@@ -25,11 +26,13 @@ public class Database extends Prototype {
     private String name;
     private Path path;
     private HashMap<String, Table> tableInUse;
+    private Server server;
 
-    public Database(String name, int blockSize, int infoSize){
+    public Database(String name, int blockSize, int infoSize, Server server){
         BLOCK_SIZE = blockSize;
         INFO_SIZE = infoSize;
         this.name = name;
+        this.server = server;
 
         path = Paths.get("./data", name);
         if(!FileUtils.fileExist(path.toString())) {
@@ -55,7 +58,7 @@ public class Database extends Prototype {
 
     private Table createTable(String tableName, Schema schema){
         if(tableIsExist(tableName)){
-            System.out.println("Table exists, cannot create table " + tableName);
+            out("Table exists, cannot create table " + tableName);
             return null;
         }
         // create file
@@ -121,7 +124,7 @@ public class Database extends Prototype {
             table.deleteTable();
         }
         else {
-            System.out.println("Table " + tableName + " not exists!");
+            out("Table " + tableName + " not exists!");
         }
     }
 
@@ -133,7 +136,16 @@ public class Database extends Prototype {
         }
         boolean over = deleteDir(this.path.toString());
         if(!over){
-            System.out.println("Delete Database Failed!");
+            out("Delete Database Failed!");
+        }
+    }
+
+    public void out(String s){
+        if(this.server != null){
+            this.server.sendMsg(s);
+        }
+        else {
+            System.out.println(s);
         }
     }
 

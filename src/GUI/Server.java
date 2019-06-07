@@ -45,9 +45,17 @@ public class Server {
 
             while (true) {
                 String sql = in.readUTF();
-                String[] ss = sql.split(" ");
+                if(sql.toLowerCase().equals("exit")){
+                    this.out.writeUTF(sql);
+                    return;
+                }
+
+                String[] ss = sql.split(" |;");
                 if(ss[0].toLowerCase().equals("import")){
+                    long startTime=System.currentTimeMillis();
                     this.inputSQLFile(ss[1]);
+                    long endTime=System.currentTimeMillis();
+                    this.out.writeUTF("Total time: " + (endTime - startTime) + " ms");
                 }
                 else {
                     sql = Utils.replaceBlank(sql);

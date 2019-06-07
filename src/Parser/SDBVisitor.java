@@ -28,7 +28,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             return this.maps.get(dbName);
         }
         else {
-            return new Database(dbName, BLOCKSIZE, INFOSIZE);
+            return new Database(dbName, BLOCKSIZE, INFOSIZE, this.server);
         }
     }
 
@@ -43,7 +43,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             this.db = this.maps.get(dbName);
         }
         else {
-            this.db = new Database(dbName, BLOCKSIZE, INFOSIZE);
+            this.db = new Database(dbName, BLOCKSIZE, INFOSIZE, this.server);
             maps.put(dbName, db);
         }
     }
@@ -58,7 +58,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             return null;
         }
 
-        Database db = new Database(dbNode.getText().toLowerCase(), BLOCKSIZE, INFOSIZE);
+        Database db = new Database(dbNode.getText().toLowerCase(), BLOCKSIZE, INFOSIZE, this.server);
         this.maps.put(dbNode.getText(), db);
 
         out("create database " + db.getName() + " over!");
@@ -95,7 +95,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             db.deleteDB();
         }
         else {
-            Database db = new Database(dbName, BLOCKSIZE, INFOSIZE);
+            Database db = new Database(dbName, BLOCKSIZE, INFOSIZE, this.server);
             db.deleteDB();
         }
 
@@ -487,8 +487,14 @@ public class SDBVisitor extends SQLiteBaseVisitor {
                     if(text.charAt(0) == '\''){
                         text = text.substring(1, text.length() - 1);
                     }
-                    Object cnt = Utils.stringToObject(text, types[index]);
-                    values.add(cnt);
+                    try {
+                        Object cnt = Utils.stringToObject(text, types[index]);
+                        values.add(cnt);
+                    }
+                    catch (NumberFormatException e){
+                        out("type error!");
+                        return null;
+                    }
 
                     index += 1;
                 }

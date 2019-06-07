@@ -74,7 +74,7 @@ public class Table{
             System.arraycopy(filecontent, 0, nameB, 0, Database.STRINGSIZE);
             String tempName = Bytes.bytesToString(nameB);
             if(!tempName.equals(name)){
-                System.out.println("Table read error");
+                out("Table read error");
                 System.exit(1);
             }
 
@@ -142,7 +142,7 @@ public class Table{
                 e.printStackTrace();
             }
         }
-        System.out.println("Undefined Type in Table.newIndex");
+        out("Undefined Type in Table.newIndex");
         return null;
     }
 
@@ -158,7 +158,7 @@ public class Table{
         for (int i = 0; i < atts.size(); ++i){
             int index = this.schema.namePos(atts.get(i));
             if(index == -1){
-                System.out.println("attribute " + atts.get(i) + " not exists in table " + this.name);
+                out("attribute " + atts.get(i) + " not exists in table " + this.name);
                 return false;
             }
             else {
@@ -171,13 +171,13 @@ public class Table{
 
     public boolean insert(Object[] data){
         if(!check(data)){
-            System.out.println("type error in insert");
+            out("type error in insert");
             return false;
         }
 
         // check primary key
         if(!checkPrimaryKey(data)){
-            System.out.println("There exists a row of same primary key!");
+            out("There exists a row of same primary key!");
             return false;
         }
 
@@ -352,7 +352,7 @@ public class Table{
                         BlockDisk.delete(deleteFm, (int) position[i]);
                         tree.delete(keys.get(i));
                         tree.close();
-//                        System.out.println(this);
+//                        out(this);
                         record += 1;
                     }
                 }
@@ -480,7 +480,7 @@ public class Table{
                     continue;
                 }
                 else {
-                    System.out.println("attribute " + this.schema.name(i) + " can not be null!");
+                    out("attribute " + this.schema.name(i) + " can not be null!");
                     ans = false;
                     break;
                 }
@@ -553,7 +553,7 @@ public class Table{
         close();
         boolean over = deleteDir(this.path.toString());
         if(!over){
-            System.out.println("Delete Table Failed!");
+            out("Delete Table Failed!");
         }
     }
 
@@ -563,6 +563,10 @@ public class Table{
 
     public String show(){
         return this.schema.show();
+    }
+
+    public void out(String string){
+        this.db.out(string);
     }
 
     public String toString(){

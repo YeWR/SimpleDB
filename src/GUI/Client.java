@@ -35,10 +35,15 @@ public class Client{
 
             Scanner console = new Scanner(System.in);
             while (true){
+                System.out.print("sql>");
                 String cmd = console.nextLine();
 
                 out.writeUTF(cmd);
                 out.flush();
+
+                if(cmd.toLowerCase().equals("exit")){
+                    return;
+                }
             }
 
         } catch (IOException e) {
@@ -61,6 +66,9 @@ class ReadThread implements Runnable{
             String msg = null;
             try {
                 msg = this.client.in.readUTF();
+                if(msg.toLowerCase().equals("exit")){
+                    return;
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
