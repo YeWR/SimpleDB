@@ -3,7 +3,7 @@ package GUI;
 import Parser.SDBVisitor;
 import Parser.SQLiteLexer;
 import Parser.SQLiteParser;
-import Utils.Utils;
+import Utils.*;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 
@@ -45,9 +45,14 @@ public class Server {
 
             while (true) {
                 String sql = in.readUTF();
-                sql = Utils.replaceBlank(sql);
-                // TODO: import file
-                this.inputSQL(sql);
+                String[] ss = sql.split(" ");
+                if(ss[0].toLowerCase().equals("import")){
+                    this.inputSQLFile(ss[1]);
+                }
+                else {
+                    sql = Utils.replaceBlank(sql);
+                    this.inputSQL(sql);
+                }
             }
 
         } catch (IOException e) {
@@ -70,5 +75,12 @@ public class Server {
         SQLiteParser parser = new SQLiteParser(tokenStream);
 
         visitor.visit(parser.parse());
+    }
+
+    public void inputSQLFile(String fileName){
+        String sql = FileUtils.readWholeFile(fileName);
+        sql = Utils.replaceBlank(sql);
+
+        this.inputSQL(sql);
     }
 }
