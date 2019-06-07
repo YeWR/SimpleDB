@@ -4,11 +4,12 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class Client {
+public class Client{
     private Socket socket;
     private int port;
     private String ip;
-    private DataInputStream dataInputStream;
+    public DataOutputStream out;
+    public DataInputStream in;
 
     public Client(String ip, int port){
         this.ip = ip;
@@ -18,6 +19,7 @@ public class Client {
     public void link(){
         try {
             this.socket = new Socket(this.ip, this.port);
+            System.out.println("succeed to link to the server!");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -26,8 +28,10 @@ public class Client {
             InputStream is = this.socket.getInputStream();
             OutputStream os = this.socket.getOutputStream();
 
-            DataOutputStream out = new DataOutputStream(os);
-            DataInputStream in = new DataInputStream(is);
+            out = new DataOutputStream(os);
+            in = new DataInputStream(is);
+
+            new Thread(new ReadThread(this)).start();
 
             Scanner console = new Scanner(System.in);
             while (true){
@@ -35,13 +39,32 @@ public class Client {
 
                 out.writeUTF(cmd);
                 out.flush();
-
-                String msg = in.readUTF();
-                System.out.println(msg);
             }
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+}
+
+class ReadThread implements Runnable{
+
+    private Client client;
+
+    public ReadThread(Client client){
+        this.client = client;
+    }
+
+    @Override
+    public void run() {
+        while (true){
+            String msg = null;
+            try {
+                msg = this.client.in.readUTF();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            System.out.println(msg);
         }
     }
 }
