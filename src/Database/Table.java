@@ -380,11 +380,11 @@ public class Table{
      * update
      */
 
-    public void update(ArrayList<String> atts, ArrayList<Object> values, String att, String relation, Object data){
+    public int update(ArrayList<String> atts, ArrayList<Object> values, String att, String relation, Object data){
         // select
         ArrayList<Row> rows = this.select(att, relation, data);
         if(rows == null || rows.size() == 0){
-            return;
+            return 0;
         }
 
         ArrayList<Integer> positions = this.attributesPos(atts);
@@ -401,6 +401,8 @@ public class Table{
         for (Row row : rows){
             this.insert(row.getData());
         }
+
+        return rows.size();
     }
 
     public void update(String idName, Object index, Object[] data){

@@ -93,7 +93,7 @@ public class SQLTest {
 
         CommonTokenStream tokenStream = new CommonTokenStream(lexer);
         SQLiteParser parser = new SQLiteParser(tokenStream);
-        SDBVisitor visitor = new SDBVisitor();
+        SDBVisitor visitor = new SDBVisitor(null);
         visitor.visit(parser.parse());
     }
 }

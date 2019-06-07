@@ -1,6 +1,7 @@
 package Parser;
 
 import Database.*;
+import GUI.Server;
 import Utils.Utils;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
@@ -14,10 +15,12 @@ public class SDBVisitor extends SQLiteBaseVisitor {
     private final static int INFOSIZE = 20;
     private HashMap<String, Database> maps;
     private Database db;
+    private Server server;
 
-    public SDBVisitor(){
+    public SDBVisitor(Server server){
         super();
         this.maps = new HashMap<String, Database>();
+        this.server = server;
     }
 
     public Database getDatabase(String dbName){
@@ -32,7 +35,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
     public void setDatabase(String dbName) {
         // check db exist
         if(!Database.existDB(dbName)){
-            System.out.println("DB " + dbName + " not exists!");
+            out("DB " + dbName + " not exists!");
             return;
         }
 
@@ -51,12 +54,14 @@ public class SDBVisitor extends SQLiteBaseVisitor {
     public Object visitCreate_database_stmt(SQLiteParser.Create_database_stmtContext ctx) {
         ParseTree dbNode = ctx.getChild(2);
         if(Database.existDB(dbNode.getText())){
-            System.out.println("DB exists!");
+            out("DB exists!");
             return null;
         }
+
         Database db = new Database(dbNode.getText().toLowerCase(), BLOCKSIZE, INFOSIZE);
         this.maps.put(dbNode.getText(), db);
 
+        out("create database " + db.getName() + " over!");
         return null;
     }
 
@@ -66,6 +71,8 @@ public class SDBVisitor extends SQLiteBaseVisitor {
     public Object visitUse_database_stmt(SQLiteParser.Use_database_stmtContext ctx) {
         ParseTree dbNode = ctx.getChild(2);
         this.setDatabase(dbNode.getText().toLowerCase());
+
+        out("Database " + this.db.getName() + " is in use.");
         return null;
     }
 
@@ -75,6 +82,11 @@ public class SDBVisitor extends SQLiteBaseVisitor {
     public Object visitDrop_database_stmt(SQLiteParser.Drop_database_stmtContext ctx){
         ParseTree dbNode = ctx.getChild(2);
         String dbName = dbNode.getText().toLowerCase();
+        if(!Database.existDB(dbName)){
+            out("DB " + dbName + " not exist!");
+            return null;
+        }
+
         if(this.maps.containsKey(dbName)){
             if(this.db.getName().equals(dbName)){
                 this.db = null;
@@ -86,6 +98,8 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             Database db = new Database(dbName, BLOCKSIZE, INFOSIZE);
             db.deleteDB();
         }
+
+        out("drop database " + dbName + " over!");
         return null;
     }
 
@@ -112,13 +126,13 @@ public class SDBVisitor extends SQLiteBaseVisitor {
      */
     public Object visitCreate_table_stmt(SQLiteParser.Create_table_stmtContext ctx){
         if(this.db == null){
-            System.out.println("database not set!");
+            out("database not set!");
             return null;
         }
         String tableName = ctx.getChild(2).getText().toLowerCase();
 
         if(this.db.tableIsExist(tableName)){
-            System.out.println("Table " + tableName + " exists");
+            out("Table " + tableName + " exists");
             return null;
         }
 
@@ -153,6 +167,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
         }
         this.db.createTable(tableName, Utils.toStrings(names), Utils.toStrings(types), Utils.toStrings(indexes), Utils.toStrings(notNullAtts));
 
+        out("Table " + tableName + " is created over!");
         return null;
     }
 
@@ -228,13 +243,14 @@ public class SDBVisitor extends SQLiteBaseVisitor {
      */
     public Object visitDrop_table_stmt(SQLiteParser.Drop_table_stmtContext ctx){
         if(this.db == null){
-            System.out.println("database not set!");
+            out("database not set!");
             return null;
         }
 
         String tableName = ctx.getChild(2).getText();
         this.db.deleteTable(tableName);
 
+        out("Drop table " + tableName + " over!");
         return null;
     }
 
@@ -243,14 +259,12 @@ public class SDBVisitor extends SQLiteBaseVisitor {
      */
     public Object visitShow_table_stmt(SQLiteParser.Show_table_stmtContext ctx){
         if(this.db == null){
-            System.out.println("database not set!");
+            out("database not set!");
             return null;
         }
 
         String tableName = ctx.getChild(2).getText();
         out(this.db.getTable(tableName).show());
-//        System.out.println(this.db.getTable(tableName));
-
         return null;
     }
 
@@ -259,7 +273,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
      */
     public Object visitSelect_core(SQLiteParser.Select_coreContext ctx){
         if(this.db == null){
-            System.out.println("database not set!");
+            out("database not set!");
             return null;
         }
 
@@ -293,7 +307,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
         if(type == 1){
             // check table exist
             if(!this.db.tableIsExist(tableNode.getText())){
-                System.out.println("table " + tableNode.getText() + " not exists!");
+                out("table " + tableNode.getText() + " not exists!");
                 // TODO: process
                 return null;
             }
@@ -306,7 +320,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
 
             // check atts
             if(!table.hasAttributes(atts)){
-                System.out.println("atts not exist!");
+                out("atts not exist!");
                 // TODO: process
                 return null;
             }
@@ -338,15 +352,13 @@ public class SDBVisitor extends SQLiteBaseVisitor {
 
             // check table exist
             if(!this.db.tableIsExist(tableName1)){
-                System.out.println("table " + tableName1 + " not exists!");
-                // TODO: process
+                out("table " + tableName1 + " not exists!");
                 return null;
             }
             Table table1 = this.db.getTable(tableName1);
 
             if(!this.db.tableIsExist(tableName2)){
-                System.out.println("table " + tableName2 + " not exists!");
-                // TODO: process
+                out("table " + tableName2 + " not exists!");
                 return null;
             }
             Table table2 = this.db.getTable(tableName2);
@@ -361,7 +373,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
                 String[] res = att.split("\\.");
                 boolean hasAtt = this.db.hasAttributeInTable(res[0], res[1]);
                 if(!hasAtt){
-                    System.out.println("Table " + res[0] + " has no attribute named " + res[1] + " !");
+                    out("Table " + res[0] + " has no attribute named " + res[1] + " !");
                     return null;
                 }
             }
@@ -429,8 +441,12 @@ public class SDBVisitor extends SQLiteBaseVisitor {
     }
 
     public void out(String string){
-        // TODO: server + cline
-        System.out.println(string);
+        if(this.server != null){
+            this.server.sendMsg(string);
+        }
+        else {
+            out(string);
+        }
     }
 
     /*
@@ -438,15 +454,14 @@ public class SDBVisitor extends SQLiteBaseVisitor {
      */
     public Object visitInsert_stmt(SQLiteParser.Insert_stmtContext ctx){
         if(this.db == null){
-            System.out.println("database not set!");
+            out("database not set!");
             return null;
         }
         String tableName = ctx.getChild(2).getText();
 
         // check table exist
         if(!this.db.tableIsExist(tableName)){
-            System.out.println("table " + tableName + " not exists!");
-            // TODO: process
+            out("table " + tableName + " not exists!");
             return null;
         }
         Table table = this.db.getTable(tableName);
@@ -470,13 +485,15 @@ public class SDBVisitor extends SQLiteBaseVisitor {
                 }
             }
 
-            // TODO: null
             for (int i = index; i < types.length; ++i){
                 Object cnt = Utils.stringToObject(null, types[i]);
             }
 
             // insert
-            table.insert(values.toArray());
+            boolean ok = table.insert(values.toArray());
+            if(ok){
+                this.out("insert over!");
+            }
         }
         // insert into table(attris...) values (...)
         else{
@@ -503,7 +520,10 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             }
 
             // insert
-            table.insert(atts, values);
+            boolean ok = table.insert(atts, values);
+            if(ok){
+                this.out("insert over!");
+            }
         }
 
         return null;
@@ -514,14 +534,14 @@ public class SDBVisitor extends SQLiteBaseVisitor {
      */
     public Object visitDelete_stmt(SQLiteParser.Delete_stmtContext ctx){
         if(this.db == null){
-            System.out.println("database not set!");
+            out("database not set!");
             return null;
         }
         String tableName = ctx.getChild(2).getText();
 
         // check table exist
         if(!this.db.tableIsExist(tableName)){
-            System.out.println("table " + tableName + " not exists!");
+            out("table " + tableName + " not exists!");
             // TODO: process
             return null;
         }
@@ -548,10 +568,12 @@ public class SDBVisitor extends SQLiteBaseVisitor {
 
         // has where
         if(hasWhere) {
-            table.delete(att, relation, cnt);
+            int num = table.delete(att, relation, cnt);
+            out(num + " rows deleted!");
         }
         else {
             table.deleteAll();
+            out("All deleted!");
         }
 
         return null;
@@ -562,15 +584,14 @@ public class SDBVisitor extends SQLiteBaseVisitor {
      */
     public Object visitUpdate_stmt(SQLiteParser.Update_stmtContext ctx){
         if(this.db == null){
-            System.out.println("database not set!");
+            out("database not set!");
             return null;
         }
         String tableName = ctx.getChild(1).getText();
 
         // check table exist
         if(!this.db.tableIsExist(tableName)){
-            System.out.println("table " + tableName + " not exists!");
-            // TODO: process
+            out("table " + tableName + " not exists!");
             return null;
         }
         Table table = this.db.getTable(tableName);
@@ -617,7 +638,8 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             }
         }
         // update
-        table.update(atts, values, att, relation, cnt);
+        int num = table.update(atts, values, att, relation, cnt);
+        out(num + " rows updated!");
 
         return null;
     }
