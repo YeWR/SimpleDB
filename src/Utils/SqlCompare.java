@@ -12,6 +12,27 @@ public class SqlCompare {
     }
 
     public boolean compare(Object o1){
+        if((o1 == null && o2 != null) || (o1 != null && o2 == null)){
+            switch (this.relation){
+                case "=":
+                    return false;
+                case "<>":
+                    return true;
+                default:
+                    return false;
+            }
+        }
+        else if(o1 == null && o2 == null){
+            switch (this.relation){
+                case "=":
+                    return true;
+                case "<>":
+                    return false;
+                default:
+                    return false;
+            }
+        }
+
         switch (this.relation){
             case "=":
                 return o1.equals(this.o2);

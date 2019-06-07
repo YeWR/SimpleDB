@@ -48,8 +48,8 @@ public class Database extends Prototype {
         return table;
     }
 
-    public Table createTable(String tableName, String[] columnNames, String[] columnTypes, String[] indexNames, String[] notNullAtts){
-        Schema schema = new Schema(columnNames, columnTypes, indexNames, notNullAtts);
+    public Table createTable(String tableName, String[] columnNames, String[] columnTypes, String[] indexNames, String[] notNullAtts, Integer[] typeSizes){
+        Schema schema = new Schema(columnNames, columnTypes, indexNames, notNullAtts, typeSizes);
         return createTable(tableName, schema);
     }
 

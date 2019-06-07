@@ -10,23 +10,26 @@ public class Schema {
      * for a table
      */
 
-    private static int COLUMNSIZE = 4, INDEXSIZE = 4;
+    private static int COLUMNSIZE = 4, INDEXSIZE = 4, CANBENULLSIZE = 1, TYPESIZE = 4;
 
     private ArrayList<String> names;
     private ArrayList<String> types;
     // indexes[0] -> primary key
     private ArrayList<Integer> indexes;
     private ArrayList<Boolean> canBeNull;
+    private ArrayList<Integer> typeSizes;
 
     /**
      * for create
      * @param names
      * @param types
+     * @param typeSizes
      */
-    public Schema(String[] names, String[] types, String[] indexNames, String[] notNullAtts){
+    public Schema(String[] names, String[] types, String[] indexNames, String[] notNullAtts, Integer[] typeSizes){
         assert names.length == types.length;
         this.names = new ArrayList<>(Arrays.asList(names));
         this.types = new ArrayList<>(Arrays.asList(types));
+        this.typeSizes = new ArrayList<>(Arrays.asList(typeSizes));
 
         this.indexes = new ArrayList<>(indexNames.length);
         this.canBeNull = new ArrayList<>(names.length);
@@ -85,17 +88,51 @@ public class Schema {
             id += 4;
         }
 
+        // index
         byte[] temp1 = new byte[4];
         System.arraycopy(bytes, id, temp1, 0, temp1.length);
         id += 4;
 
         int indexNum = Bytes.bytesToInt(temp1);
-        this.indexes = new ArrayList<Integer>(indexNum);
+        this.indexes = new ArrayList<Integer>();
         for (int i = 0; i < indexNum; ++i){
             byte[] bs = new byte[4];
             System.arraycopy(bytes, id, bs, 0, 4);
             int b = Bytes.bytesToInt(bs);
-            this.indexes.add(b);
+            indexes.add(b);
+
+            id += 4;
+        }
+
+        // can be null
+        temp1 = new byte[4];
+        System.arraycopy(bytes, id, temp1, 0, temp1.length);
+        id += 4;
+
+        int nullNum = Bytes.bytesToInt(temp1);
+        this.canBeNull = new ArrayList<>();
+        for (int i = 0; i < nullNum; ++i){
+            byte b = bytes[id];
+            boolean nb = Bytes.byteToBoolean(b);
+            canBeNull.add(nb);
+
+            id += 1;
+        }
+
+        // type size
+        temp1 = new byte[4];
+        System.arraycopy(bytes, id, temp1, 0, temp1.length);
+        id += 4;
+
+        int typeSizeNum = Bytes.bytesToInt(temp1);
+        this.typeSizes = new ArrayList<>();
+        for (int i = 0; i < typeSizeNum; ++i){
+            byte[] bs = new byte[4];
+            System.arraycopy(bytes, id, bs, 0, 4);
+            int b = Bytes.bytesToInt(bs);
+            typeSizes.add(b);
+
+            id += 4;
         }
     }
 
@@ -106,8 +143,14 @@ public class Schema {
          * 4-*: total names of columns (stored in string_
          * *-*: total types of columns
          * *-*: index
+         * *-*: can be null
+         * *-*: type size
          */
-        int total = COLUMNSIZE + len * (Database.STRINGSIZE + 4) + INDEXSIZE + indexes.size() * INDEXSIZE;
+        int total = COLUMNSIZE +
+                len * (Database.STRINGSIZE + 4) +
+                (4 + indexes.size() * INDEXSIZE) +
+                (4 + this.canBeNull.size() * CANBENULLSIZE) +
+                (4 + this.typeSizes.size() * TYPESIZE);
         byte[] bytes = new byte[total];
 
         int id = 0;
@@ -130,6 +173,7 @@ public class Schema {
             id += bs.length;
         }
 
+        // index
         byte[] temp1 = Bytes.intToBytes(this.indexes.size());
         System.arraycopy(temp1, 0, bytes, id, temp1.length);
         id += temp1.length;
@@ -140,6 +184,31 @@ public class Schema {
 
             id += bs.length;
         }
+
+        // can be null
+        temp1 = Bytes.intToBytes(this.canBeNull.size());
+        System.arraycopy(temp1, 0, bytes, id, temp1.length);
+        id += temp1.length;
+
+        for (boolean i : this.canBeNull){
+            byte b = Bytes.booleanToByte(i);
+            bytes[id] = b;
+
+            id += 1;
+        }
+
+        // type size
+        temp1 = Bytes.intToBytes(this.typeSizes.size());
+        System.arraycopy(temp1, 0, bytes, id, temp1.length);
+        id += temp1.length;
+
+        for (Integer i : this.typeSizes){
+            byte[] bs = Bytes.intToBytes(i);
+            System.arraycopy(bs, 0, bytes, id, bs.length);
+
+            id += bs.length;
+        }
+
         return bytes;
     }
 
@@ -163,6 +232,10 @@ public class Schema {
             classes.add(Database.typeToClass(type));
         }
         return classes;
+    }
+
+    public Integer getTypeSize(int index){
+        return this.typeSizes.get(index);
     }
 
     public int columns(){
@@ -251,7 +324,12 @@ public class Schema {
         for (int i = 0; i < this.columns(); ++i){
             s.append("\t|\t");
             s.append(this.names.get(i));
-            s.append(":(").append(this.types.get(i)).append(")");
+            if(this.types.get(i).equals("String")) {
+                s.append(":(").append(this.types.get(i)).append(" ").append(this.typeSizes.get(i)).append(")");
+            }
+            else {
+                s.append(":(").append(this.types.get(i)).append(")");
+            }
             int id = this.indexes.indexOf(i);
             if(id == 0){
                 s.append("(*)");
@@ -259,6 +337,11 @@ public class Schema {
             else if(id != -1){
                 s.append("(+)");
             }
+
+            if(!this.canBeNull.get(i)){
+                s.append("-- not null");
+            }
+
         }
         s.append("\t|");
         return s.toString();

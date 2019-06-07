@@ -140,17 +140,26 @@ public class SDBVisitor extends SQLiteBaseVisitor {
         ArrayList<String> types = new ArrayList<>();
         ArrayList<String> indexes = new ArrayList<>();
         ArrayList<String> notNullAtts = new ArrayList<>();
+        ArrayList<Integer> typeSizes = new ArrayList<>();
 
         for (ParseTree tree : ctx.children){
             if(tree.getClass() == SQLiteParser.Column_defContext.class){
                 ColumnType columnType = (ColumnType) visit(tree);
+                String type = Database.classToType(columnType.type);
                 // not primary key
                 if(columnType.kind != 2){
                     names.add(columnType.name);
-                    types.add(Database.classToType(columnType.type));
+                    types.add(type);
                 }
                 else {
                     indexes.add(columnType.name);
+                }
+                if(type != null) {
+                    if (type.equals("String")) {
+                        typeSizes.add(columnType.len);
+                    } else {
+                        typeSizes.add(Database.getTypeSize(type));
+                    }
                 }
 
                 if(columnType.kind != 0){
@@ -165,7 +174,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             types.add(0, primaryType);
             indexes.add(0, primaryKey);
         }
-        this.db.createTable(tableName, Utils.toStrings(names), Utils.toStrings(types), Utils.toStrings(indexes), Utils.toStrings(notNullAtts));
+        this.db.createTable(tableName, Utils.toStrings(names), Utils.toStrings(types), Utils.toStrings(indexes), Utils.toStrings(notNullAtts), Utils.toIntegers(typeSizes));
 
         out("Table " + tableName + " is created over!");
         return null;
@@ -445,7 +454,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             this.server.sendMsg(string);
         }
         else {
-            out(string);
+            System.out.println(string);
         }
     }
 
@@ -486,7 +495,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             }
 
             for (int i = index; i < types.length; ++i){
-                Object cnt = Utils.stringToObject(null, types[i]);
+                values.add(null);
             }
 
             // insert

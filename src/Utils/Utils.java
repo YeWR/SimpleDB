@@ -38,6 +38,14 @@ public class Utils {
         return ans;
     }
 
+    public static Integer[] toIntegers(ArrayList<Integer> arrayList){
+        Integer[] ans = new Integer[arrayList.size()];
+        for(int i = 0; i < arrayList.size(); ++i){
+            ans[i] = arrayList.get(i);
+        }
+        return ans;
+    }
+
     public static Object stringToObject(String cnt, String type){
         Object obj;
         switch (type){

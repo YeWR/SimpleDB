@@ -181,6 +181,14 @@ public class Table{
             return false;
         }
 
+        // cut string
+        for (int i = 0; i < data.length; ++i){
+            if(data[i] != null && this.getType(i).equals("String")){
+                String s = (String) data[i];
+                data[i] = s.substring(0, Math.min(s.length(), this.schema.getTypeSize(i)));
+            }
+        }
+
         Path dataPath = Paths.get(this.path.toString(), this.name + ".db");
         RowDisk rowDisk = new RowDisk(dataPath.toString(), Prototype.BLOCK_SIZE, Prototype.INFO_SIZE);
 

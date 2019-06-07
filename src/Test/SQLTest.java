@@ -23,12 +23,6 @@ public class SQLTest {
                 "\t name\t\t\tstring(32) not null, \n" +
                 "\t power\tint not null,\n" +
                 "\t weight     float,\n" +
-                "\t primary key (ID)\n" +
-                "\t);drop table avengers;" + "create table avengers\n" +
-                "\t(id\t\t\tint not null, \n" +
-                "\t name\t\t\tstring(32) not null, \n" +
-                "\t power\tint not null,\n" +
-                "\t weight     float,\n" +
                 "\t height     double,\n" +
                 "\t primary key (ID)\n" +
                 "\t);";
@@ -36,7 +30,7 @@ public class SQLTest {
 
         String createTable2 = "create table villain\n" +
                 "\t(id\t\t\tint not null, \n" +
-                "\t name\t\t\tstring(32) not null, \n" +
+                "\t name\t\t\tstring(3) not null, \n" +
                 "\t power\tint not null,\n" +
                 "\t primary key (ID)\n" +
                 "\t);";
@@ -67,9 +61,13 @@ public class SQLTest {
         String update1 = "UPDATE avengers SET power = 100 WHERE name = 'Captain';";
 
         String select1 = "select id, name from avengers where id = 4;";
-        String select2 = "select avengers.name, villain.name, villain.power from avengers join villain on avengers.power = villain.power where villain.power > 40;";
-        String select3 = "select * from avengers;";
+        String select2 = "select avengers.name, villain.name, villain.power, avengers.height from avengers join villain on avengers.power = villain.power where villain.power > 1;";
+        String select3 = "select * from avengers where weight < 100;";
+        String delete2 = "Delete from villain where power > 1;";
 
+        String insert4 = "insert into villain(id, power) values(12, 100);";
+        String insert5 = "insert into avengers(id, name, power, height) values(123, 'GG', 111, 43);";
+        String insert6 = "insert into avengers values(124, 'GG', 111, 43);";
 
 //        String select1 = "SELECT ID FROM person WHERE name = 'Ted';";
 //        String select2 = "SELECT tableName1.AttrName1, tableName1.AttrName2 tableName2.AttrName1, tableName2.AttrName2 FROM tableName1 JOIN tableName2 ON tableName1.attrName1 = tableName2.attrName2 WHERE  attrName1 = attrValue;";
@@ -87,7 +85,7 @@ public class SQLTest {
 
 
 //        String code = createDB + useDB + createTable1 + createTable2 + insert1 + delete1 + update1 + insert2 + showTable1 + select2 + select3 + select1;
-        String code = createDB + useDB + createTable1 + insert3 + selectAll1;
+        String code = createDB + useDB + select2;
 //        String code = createDB + useDB + select1 + showTable;
         SQLiteLexer lexer = new SQLiteLexer(new ANTLRInputStream(code));
 
