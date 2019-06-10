@@ -338,7 +338,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
 
             // where
             if(whereExpr != null){
-                String att = whereExpr.getChild(0).getText();
+                String att = whereExpr.getChild(0).getText().toLowerCase();
                 String relation = whereExpr.getChild(1).getText();
                 String value = whereExpr.getChild(2).getText();
                 if(value.charAt(0) == '\''){
@@ -395,7 +395,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             String att = null, relation = null, value = null;
             Object cnt = null;
             if(whereExpr != null ){
-                att = whereExpr.getChild(0).getText();
+                att = whereExpr.getChild(0).getText().toLowerCase();
                 relation = whereExpr.getChild(1).getText();
                 value = whereExpr.getChild(2).getText();
                 if(value.charAt(0) == '\''){
@@ -519,7 +519,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             for (int i = 4; i < ctx.children.size(); ++i){
                 ParseTree child = ctx.getChild(i);
                 if(child.getClass() == SQLiteParser.Column_nameContext.class){
-                    atts.add(child.getText());
+                    atts.add(child.getText().toLowerCase());
                 }
                 else if(child.getClass() == SQLiteParser.ExprContext.class){
                     String text = child.getText();
@@ -582,7 +582,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
 
         // has where
         if(hasWhere) {
-            int num = table.delete(att, relation, cnt);
+            int num = table.delete(att.toLowerCase(), relation, cnt);
             out(num + " rows deleted!");
         }
         else {
@@ -637,7 +637,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             }
             else {
                 if(tree.getClass() == SQLiteParser.Column_nameContext.class){
-                    atts.add(tree.getText());
+                    atts.add(tree.getText().toLowerCase());
 
                 }
                 else if(tree.getClass() == SQLiteParser.ExprContext.class){
@@ -652,7 +652,7 @@ public class SDBVisitor extends SQLiteBaseVisitor {
             }
         }
         // update
-        int num = table.update(atts, values, att, relation, cnt);
+        int num = table.update(atts, values, att.toLowerCase(), relation, cnt);
         out(num + " rows updated!");
 
         return null;
