@@ -351,7 +351,7 @@ public class Table{
                     if(row.compare(attPos, compare)){
                         BlockDisk.delete(deleteFm, (int) position[i]);
                         tree.delete(keys.get(i));
-                        tree.close();
+//                        tree.close();
 //                        out(this);
                         record += 1;
                     }
